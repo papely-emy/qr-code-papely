@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Papely - QR Code</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+
+  /* 🖼️ imagem de fundo */
+  background: url("background.jpg") no-repeat center center;
+  background-size: cover;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* overlay leve pra melhorar leitura */
+body::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 192, 203, 0.3);
+  top: 0;
+  left: 0;
+}
+
+/* container */
+.container {
+  position: relative;
+  z-index: 1;
+}
+
+/* card */
+.card {
+  backdrop-filter: blur(15px);
+  background: rgba(255,255,255,0.7);
+  border-radius: 25px;
+  padding: 30px;
+  width: 360px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+  animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+.logo {
+  font-size: 38px;
+  font-weight: bold;
+  color: #d81b60;
+}
+
+.subtitle {
+  color: #880e4f;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+input {
+  width: 90%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
+
+button {
+  background: linear-gradient(45deg, #ec407a, #d81b60);
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  margin: 10px 5px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+canvas {
+  margin-top: 20px;
+  background: white;
+  padding: 12px;
+  border-radius: 15px;
+}
+
+.footer {
+  margin-top: 15px;
+  font-size: 12px;
+  color: #880e4f;
+}
+
+/* ✨ glitter suave no fundo */
+.sparkle {
+  position: fixed;
+  top: -20px;
+  font-size: 12px;
+  animation: fall 4s linear forwards;
+  opacity: 0.8;
+  z-index: 0;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="card">
+
+    <div class="logo">💗 Papely</div>
+    <div class="subtitle">Gerador de QR Code</div>
+
+    <input id="url" placeholder="Cole seu link aqui ✨" oninput="gerar()">
+    <input id="filename" placeholder="Nome do arquivo 💾">
+
+    <button onclick="baixar()">Baixar QR</button>
+    <button onclick="gerar()">Gerar QR</button>
+
+    <canvas id="qrcode" width="320" height="320"></canvas>
+
+    <div class="footer">Feito com amor 💖</div>
+
+  </div>
+</div>
+
+<script>
+function gerar() {
+  const url = document.getElementById("url").value;
+  if (!url) return;
+
+  QRCode.toCanvas(document.getElementById("qrcode"), url, {
+    width: 320,
+    margin: 2,
+    color: {
+      dark: "#d81b60",
+      light: "#ffffff"
+    }
+  });
+}
+
+function baixar() {
+  const canvas = document.getElementById("qrcode");
+  const filename = document.getElementById("filename").value || "papely_qrcode";
+
+  const link = document.createElement("a");
+  link.download = filename + ".png";
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
+/* ✨ glitter leve no fundo */
+const bgGlitter = ["✨","⭐","✦"];
+
+setInterval(() => {
+  const sparkle = document.createElement("div");
+  sparkle.className = "sparkle";
+  sparkle.innerHTML = bgGlitter[Math.floor(Math.random() * bgGlitter.length)];
+
+  sparkle.style.left = Math.random() * window.innerWidth + "px";
+
+  document.body.appendChild(sparkle);
+
+  setTimeout(() => sparkle.remove(), 4000);
+}, 400);
+
+function gerar() {
+  const url = document.getElementById("url").value;
+
+  if (!url) {
+    alert("Coloca um link primeiro 😅");
+    return;
+  }
+
+  QRCode.toCanvas(document.getElementById("qrcode"), url, {
+    width: 320,
+    margin: 2,
+    color: {
+      dark: "#d81b60",
+      light: "#ffffff"
+    }
+  });
+}
+ 
+</script>
+
+</body>
+</html>
