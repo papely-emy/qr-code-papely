@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: papely
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: papely
+  template:
+    metadata:
+      labels:
+        app: papely
+    spec:
+      containers:
+        - name: papely
+          image: thsxn/papely-qrcode:latest
+          ports:
+            - containerPort: 80
