@@ -4,21 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Papely - QR Code</title>
+
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
-
   background: url("background.jpg") no-repeat center center;
   background-size: cover;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
-  min-height: 100vh; /* 🔥 melhor que height */
+  min-height: 100vh;
   padding: 20px;
 }
 
@@ -75,7 +74,6 @@ input {
   box-sizing: border-box;
 }
 
-/* botões mobile friendly */
 button {
   width: 100%;
   background: linear-gradient(45deg, #ec407a, #d81b60);
@@ -88,25 +86,23 @@ button {
   font-weight: bold;
 }
 
-/* QR responsivo */
 canvas {
   margin-top: 15px;
   width: 100%;
   max-width: 260px;
-  aspect-ratio: 1/1; /* 👈 mantém quadrado perfeito */
+  aspect-ratio: 1/1;
   background: white;
   padding: 10px;
   border-radius: 12px;
 }
 
-/* footer */
 .footer {
   margin-top: 10px;
   font-size: 11px;
   color: #880e4f;
 }
 
-/* glitter leve */
+/* glitter */
 .sparkle {
   position: fixed;
   top: -20px;
@@ -135,9 +131,13 @@ canvas {
 
     <input id="url" placeholder="Cole seu link aqui ✨">
     <input id="filename" placeholder="Nome do arquivo 💾">
-    <label style="font-size:12px; color:#880e4f;">Cor do QR 🎨</label><br>
-    <input type="color" id="color" value="#d81b60" style="margin-bottom:10px;">
 
+    <label style="font-size:12px; color:#880e4f;">Cor do QR 🎨</label>
+    <input type="color" id="color" value="#d81b60">
+
+    <input type="file" id="pdf" accept="application/pdf">
+
+    <button onclick="uploadPDF()">Enviar PDF 📄</button>
     <button onclick="gerar()">Gerar QR</button>
     <button onclick="baixar()">Baixar QR</button>
 
@@ -149,16 +149,23 @@ canvas {
 </div>
 
 <script>
+// 🔗 SUPABASE
+const supabaseClient = window.supabase.createClient(
+  "https://adkzekqmvrrvlvjvqmnf.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFka3pla3FtdnJydmx2anZxbW5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NzYwODQsImV4cCI6MjA5MTQ1MjA4NH0.hjg7LZ2WA5sc09xXyjCMIm3VtWGZp6ryeeHRyo8WEDM"
+);
+
+// 🎯 GERAR QR
 function gerar() {
   let url = document.getElementById("url").value.trim();
-  const color = document.getElementById("color").value; // 👈 pega a cor
+  const color = document.getElementById("color").value;
 
   if (!url) {
     alert("Coloca um link 😅");
     return;
   }
 
-  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+  if (!url.startsWith("http")) {
     url = "https://" + url;
   }
 
@@ -173,13 +180,46 @@ function gerar() {
     width: 260,
     margin: 2,
     color: {
-      dark: color,   // 👈 agora funciona
+      dark: color,
       light: "#ffffff"
     }
   });
 }
-document.getElementById("color").addEventListener("input", gerar);
 
+// 📄 UPLOAD PDF
+async function uploadPDF() {
+  const file = document.getElementById("pdf").files[0];
+
+  if (!file) {
+    alert("Escolhe um PDF 😅");
+    return;
+  }
+
+  const fileName = "pdf-" + Date.now() + ".pdf";
+
+  const { error } = await supabaseClient.storage
+    .from("papely-pdf")
+    .upload(fileName, file);
+
+  if (error) {
+    alert("Erro upload: " + error.message);
+    return;
+  }
+
+  const { data } = supabaseClient.storage
+    .from("papely-pdf")
+    .getPublicUrl(fileName);
+
+  const url = data.publicUrl;
+
+  document.getElementById("url").value = url;
+
+  gerar();
+
+  alert("PDF enviado 🚀");
+}
+
+// 💾 BAIXAR
 function baixar() {
   const canvas = document.getElementById("qrcode");
   const filename = document.getElementById("filename").value || "papely_qrcode";
@@ -190,18 +230,15 @@ function baixar() {
   link.click();
 }
 
-/* glitter fundo */
+/* glitter */
 const bgGlitter = ["✨","⭐","✦"];
 
 setInterval(() => {
   const sparkle = document.createElement("div");
   sparkle.className = "sparkle";
   sparkle.innerHTML = bgGlitter[Math.floor(Math.random() * bgGlitter.length)];
-
   sparkle.style.left = Math.random() * window.innerWidth + "px";
-
   document.body.appendChild(sparkle);
-
   setTimeout(() => sparkle.remove(), 4000);
 }, 500);
 </script>
