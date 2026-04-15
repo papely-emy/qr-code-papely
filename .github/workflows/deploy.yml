@@ -1,4 +1,4 @@
-name: Deploy to Kubernetes
+name: Deploy Kubernetes
 
 on:
   push:
@@ -7,22 +7,18 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
-      - name: Checkout código
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup kubectl
-        uses: azure/setup-kubectl@v4
-
-      - name: Configurar kubeconfig
-        run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
-
-      - name: Deploy no cluster
+      - name: Deploy
         run: |
           kubectl apply -f deployment.yaml
           kubectl apply -f service.yaml
           kubectl apply -f ingress.yaml
+
+      - name: Restart deployment (garantir update)
+        run: |
+          kubectl rollout restart deployment papely
