@@ -1,0 +1,10 @@
+resources:
+  - ../../base
+
+namespace: papely-qrcode
+
+namePrefix: dev-
+
+images:
+  - name: thsxn/papely-qrcode
+    newTag: latest

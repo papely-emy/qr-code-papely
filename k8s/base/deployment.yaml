@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: papely
-  namespace: papely-qrcode
 spec:
   replicas: 1
   selector:

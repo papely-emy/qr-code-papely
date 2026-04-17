@@ -20,16 +20,13 @@ jobs:
       
       - name: Add kubectl to PATH
         run: echo "$PWD" >> $GITHUB_PATH
+        
+      - name: Debug Kustomize
+        run: kubectl kustomize k8s/overlays/dev
 
-      - name: Set namespace
-        run: kubectl config set-context --current --namespace=papely-qrcode
-         
       - name: Deploy
-        run: |
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
-          kubectl apply -f ingress.yaml
+        run: kubectl apply -k k8s/overlays/dev
 
       - name: Restart deployment (garantir update)
         run: |
-          kubectl rollout restart deployment papely
+          kubectl rollout restart deployment papely -n papely-qrcode
