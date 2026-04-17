@@ -5,7 +5,7 @@ metadata:
   namespace: papely-qrcode
 spec:
   rules:
-    - host: papely.local
+    - host: papely-qrcode.site
       http:
         paths:
           - path: /
