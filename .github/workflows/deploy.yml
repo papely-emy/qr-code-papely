@@ -20,7 +20,10 @@ jobs:
       
       - name: Add kubectl to PATH
         run: echo "$PWD" >> $GITHUB_PATH
-        
+
+      - name: Set namespace
+        run: kubectl config set-context --current --namespace=papely-qrcode
+         
       - name: Deploy
         run: |
           kubectl apply -f deployment.yaml
