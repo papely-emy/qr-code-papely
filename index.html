@@ -20,13 +20,12 @@ body {
   padding: 20px;
 }
 
-/* overlay */
 body::after {
   content: "";
   position: fixed;
   width: 100%;
   height: 100%;
-  background: rgba(255, 192, 203, 0.3);
+  background: rgba(255, 192, 203, 0.25);
   top: 0;
   left: 0;
 }
@@ -41,8 +40,8 @@ body::after {
 
 /* card */
 .card {
-  backdrop-filter: blur(15px);
-  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(8px); /* 🔥 reduzido */
+  background: rgba(255,255,255,0.8);
   border-radius: 20px;
   padding: 20px;
   text-align: center;
@@ -83,6 +82,12 @@ button {
   margin-top: 8px;
   border-radius: 10px;
   font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 canvas {
@@ -99,23 +104,6 @@ canvas {
   margin-top: 10px;
   font-size: 11px;
   color: #880e4f;
-}
-
-/* glitter */
-.sparkle {
-  position: fixed;
-  top: -20px;
-  font-size: 12px;
-  animation: fall 4s linear forwards;
-  opacity: 0.7;
-  z-index: 0;
-}
-
-@keyframes fall {
-  to {
-    transform: translateY(100vh);
-    opacity: 0;
-  }
 }
 </style>
 </head>
@@ -136,7 +124,7 @@ canvas {
 
     <input type="file" id="pdf" accept="application/pdf">
 
-    <button onclick="uploadPDF()">Enviar PDF 📄</button>
+    <button id="uploadBtn" onclick="uploadPDF()">Enviar PDF 📄</button>
     <button onclick="gerar()">Gerar QR</button>
     <button onclick="baixar()">Baixar QR</button>
 
@@ -148,11 +136,16 @@ canvas {
 </div>
 
 <script>
+// cache de elementos (🔥 melhora performance)
+const urlInput = document.getElementById("url");
+const colorInput = document.getElementById("color");
+const canvas = document.getElementById("qrcode");
+const uploadBtn = document.getElementById("uploadBtn");
 
-// 🎯 GERAR QR
+// 🎯 GERAR QR (não trava UI)
 function gerar() {
-  let url = document.getElementById("url").value.trim();
-  const color = document.getElementById("color").value;
+  let url = urlInput.value.trim();
+  const color = colorInput.value;
 
   if (!url) {
     alert("Coloca um link 😅");
@@ -170,14 +163,17 @@ function gerar() {
     return;
   }
 
-  QRCode.toCanvas(document.getElementById("qrcode"), url, {
-    width: 260,
-    margin: 2,
-    color: {
-      dark: color,
-      light: "#ffffff"
-    }
-  });
+  // joga pra thread livre (🔥)
+  setTimeout(() => {
+    QRCode.toCanvas(canvas, url, {
+      width: 260,
+      margin: 2,
+      color: {
+        dark: color,
+        light: "#ffffff"
+      }
+    });
+  }, 0);
 }
 
 // 📄 UPLOAD PDF
@@ -189,8 +185,8 @@ async function uploadPDF() {
     return;
   }
 
-  const button = document.querySelector("button");
-  button.innerText = "Enviando... ⏳";
+  uploadBtn.innerText = "Enviando... ⏳";
+  uploadBtn.disabled = true;
 
   try {
     const formData = new FormData();
@@ -207,7 +203,7 @@ async function uploadPDF() {
 
     const data = await res.json();
 
-    document.getElementById("url").value = data.url;
+    urlInput.value = data.url;
 
     gerar();
 
@@ -216,13 +212,13 @@ async function uploadPDF() {
   } catch (err) {
     alert("Erro: " + err.message);
   } finally {
-    button.innerText = "Enviar PDF 📄";
+    uploadBtn.innerText = "Enviar PDF 📄";
+    uploadBtn.disabled = false;
   }
 }
 
 // 💾 BAIXAR
 function baixar() {
-  const canvas = document.getElementById("qrcode");
   const filename = document.getElementById("filename").value || "papely_qrcode";
 
   const link = document.createElement("a");
@@ -230,18 +226,6 @@ function baixar() {
   link.href = canvas.toDataURL();
   link.click();
 }
-
-/* glitter */
-const bgGlitter = ["✨","⭐","✦"];
-
-setInterval(() => {
-  const sparkle = document.createElement("div");
-  sparkle.className = "sparkle";
-  sparkle.innerHTML = bgGlitter[Math.floor(Math.random() * bgGlitter.length)];
-  sparkle.style.left = Math.random() * window.innerWidth + "px";
-  document.body.appendChild(sparkle);
-  setTimeout(() => sparkle.remove(), 4000);
-}, 500);
 </script>
 
 </body>
