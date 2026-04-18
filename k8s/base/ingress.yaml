@@ -7,17 +7,18 @@ spec:
     - host: papely-qrcode.site
       http:
         paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: papely-service
-                port:
-                  number: 80
           - path: /upload
             pathType: Prefix
             backend:
               service:
                 name: papely-backend
+                port:
+                  number: 80
+
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: papely-service
                 port:
                   number: 80
