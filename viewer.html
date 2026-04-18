@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abrindo PDF...</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f5f5f5;
+}
+
+.card {
+  text-align: center;
+}
+
+button {
+  padding: 12px 20px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #d81b60;
+  color: white;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>📄 Abrindo seu PDF...</h2>
+  <p>Se não abrir automaticamente:</p>
+  <button onclick="abrir()">Abrir PDF</button>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const fileUrl = params.get("file");
+
+// detectar mobile
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+function abrir() {
+  if (!fileUrl) return;
+
+  if (isMobile) {
+    // 🔥 força viewer no mobile
+    window.location.href =
+      "https://docs.google.com/viewer?url=" + encodeURIComponent(fileUrl);
+  } else {
+    // desktop tenta abrir direto
+    window.location.href = fileUrl;
+  }
+}
+
+// auto redirect
+setTimeout(abrir, 500);
+</script>
+
+</body>
+</html>

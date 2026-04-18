@@ -203,7 +203,7 @@ async function uploadPDF() {
 
     const data = await res.json();
 
-    urlInput.value = data.url;
+    urlInput.value = window.location.origin + "/viewer.html?file=" + encodeURIComponent(data.url);
 
     gerar();
 
