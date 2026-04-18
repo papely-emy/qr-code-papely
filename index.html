@@ -6,7 +6,6 @@
 <title>Papely - QR Code</title>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 body {
@@ -149,11 +148,6 @@ canvas {
 </div>
 
 <script>
-// 🔗 SUPABASE
-const supabaseClient = window.supabase.createClient(
-  "https://adkzekqmvrrvlvjvqmnf.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFka3pla3FtdnJydmx2anZxbW5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NzYwODQsImV4cCI6MjA5MTQ1MjA4NH0.hjg7LZ2WA5sc09xXyjCMIm3VtWGZp6ryeeHRyo8WEDM"
-);
 
 // 🎯 GERAR QR
 function gerar() {
@@ -195,28 +189,35 @@ async function uploadPDF() {
     return;
   }
 
-  const fileName = "pdf-" + Date.now() + ".pdf";
+  const button = document.querySelector("button");
+  button.innerText = "Enviando... ⏳";
 
-  const { error } = await supabaseClient.storage
-    .from("papely-pdf")
-    .upload(fileName, file);
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
 
-  if (error) {
-    alert("Erro upload: " + error.message);
-    return;
+    const res = await fetch("/upload", {
+      method: "POST",
+      body: formData
+    });
+
+    if (!res.ok) {
+      throw new Error("Erro no upload");
+    }
+
+    const data = await res.json();
+
+    document.getElementById("url").value = data.url;
+
+    gerar();
+
+    alert("PDF enviado 🚀");
+
+  } catch (err) {
+    alert("Erro: " + err.message);
+  } finally {
+    button.innerText = "Enviar PDF 📄";
   }
-
-  const { data } = supabaseClient.storage
-    .from("papely-pdf")
-    .getPublicUrl(fileName);
-
-  const url = data.publicUrl;
-
-  document.getElementById("url").value = url;
-
-  gerar();
-
-  alert("PDF enviado 🚀");
 }
 
 // 💾 BAIXAR

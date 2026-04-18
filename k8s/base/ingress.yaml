@@ -14,3 +14,10 @@ spec:
                 name: papely-service
                 port:
                   number: 80
+          - path: /upload
+            pathType: Prefix
+            backend:
+              service:
+                name: papely-backend
+                port:
+                  number: 80

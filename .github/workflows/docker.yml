@@ -24,3 +24,10 @@ jobs:
 
       - name: Push da imagem
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/papely-qrcode
+
+      # 🔥 BACKEND
+      - name: Build backend
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/papely-backend ./backend
+
+      - name: Push backend
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/papely-backend
