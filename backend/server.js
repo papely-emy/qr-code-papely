@@ -12,6 +12,7 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFka3pla3FtdnJydmx2anZxbW5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NzYwODQsImV4cCI6MjA5MTQ1MjA4NH0.hjg7LZ2WA5sc09xXyjCMIm3VtWGZp6ryeeHRyo8WEDM"
 );
 app.use(cors());
+
 // 📄 rota de upload
 app.post("/upload", upload.single("file"), async (req, res) => {
   try {
@@ -21,13 +22,22 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       return res.status(400).json({ error: "Arquivo não enviado" });
     }
 
+    // valida tipo (boa prática 🔥)
+    if (file.mimetype !== "application/pdf") {
+      return res.status(400).json({ error: "Apenas PDF permitido" });
+    }
+
     const fileName = `pdf-${Date.now()}.pdf`;
 
     const { error } = await supabase.storage
       .from("papely-pdf")
-      .upload(fileName, file.buffer);
+      .upload(fileName, file.buffer, {
+        contentType: file.mimetype,
+        upsert: false
+      });
 
     if (error) {
+      console.error("Erro Supabase:", error);
       return res.status(500).json({ error: error.message });
     }
 
@@ -35,10 +45,11 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       .from("papely-pdf")
       .getPublicUrl(fileName);
 
-    res.json({ url: data.publicUrl });
+    return res.json({ url: data.publicUrl });
 
   } catch (err) {
-    res.status(500).json({ error: "Erro interno" });
+    console.error("Erro interno:", err);
+    return res.status(500).json({ error: "Erro interno no servidor" });
   }
 });
 
