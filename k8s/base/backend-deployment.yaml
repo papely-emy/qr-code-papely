@@ -17,3 +17,14 @@ spec:
           image: thsxn/papely-backend:latest
           ports:
             - containerPort: 3000
+          env:
+            - name: SUPABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: papely-secrets
+                  key: supabase-url
+            - name: SUPABASE_SERVICE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: papely-secrets
+                  key: supabase-service-key

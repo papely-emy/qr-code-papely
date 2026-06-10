@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Papely — Visualizar</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #1a1a1a;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Top bar ── */
+.topbar {
+  width: 100%;
+  padding: 10px 16px;
+  background: rgba(0,0,0,.5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(8px);
+}
+
+.topbar-logo { font-size: 14px; font-weight: 800; color: #f48fb1; text-decoration: none; }
+
+.page-nav { display: flex; align-items: center; gap: 8px; }
+.page-nav button {
+  padding: 5px 12px; border: 1px solid rgba(255,255,255,.2); border-radius: 7px;
+  background: rgba(255,255,255,.08); color: #ddd; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all .15s;
+}
+.page-nav button:hover:not(:disabled) { background: rgba(255,255,255,.15); border-color: #f48fb1; }
+.page-nav button:disabled { opacity: .3; cursor: not-allowed; }
+.page-info { font-size: 11px; color: #888; }
+
+/* ── PDF viewer ── */
+.viewer-wrap {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 16px 40px;
+}
+
+.pdf-container {
+  position: relative;
+  display: inline-block;
+  max-width: 800px;
+  width: 100%;
+}
+
+#pdfCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,.6);
+}
+
+#hotspotOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* buttons handle their own events */
+}
+
+/* ── Hotspot button (public mode — completely invisible) ── */
+.hs-public {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  /* Completely invisible — the PDF's own icons appear to be clickable */
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  opacity: 0;
+  cursor: pointer;
+  pointer-events: all;
+  text-decoration: none;
+  display: block;
+  font-family: inherit;
+  border-radius: 4px;
+  /* Prevent any child content from being visible */
+  color: transparent;
+  font-size: 0;
+}
+
+/* ── Gift modal ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; animation: fadeIn .2s ease; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+.modal-sheet {
+  background: white;
+  width: 100%; max-width: 500px;
+  border-radius: 22px 22px 0 0;
+  padding: 24px 22px 40px;
+  animation: slideUp .3s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+.modal-handle { width: 36px; height: 4px; background: #e0e0e0; border-radius: 2px; margin: 0 auto 18px; }
+.modal-title  { font-size: 1.1rem; font-weight: 800; color: #d81b60; margin-bottom: 14px; text-align: center; }
+
+.gift-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; color: #444;
+}
+.gift-item:last-child { border-bottom: none; }
+.gift-icon {
+  width: 36px; height: 36px; border-radius: 10px; background: #fce4ec;
+  display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+}
+
+.modal-close {
+  width: 100%; margin-top: 18px; padding: 13px;
+  border: none; border-radius: 12px; background: #d81b60; color: white;
+  font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+
+/* ── Status screens ── */
+.status {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 40px;
+}
+.status-card {
+  text-align: center; color: white;
+}
+.status-card .emoji { font-size: 56px; display: block; margin-bottom: 16px; }
+.status-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+.status-card p  { font-size: .9rem; color: #888; margin-bottom: 20px; }
+.status-card a  {
+  display: inline-block; background: #d81b60; color: white;
+  padding: 12px 24px; border-radius: 50px; font-weight: 700; font-size: 13px; text-decoration: none;
+}
+
+/* ── Powered by ── */
+.powered {
+  padding: 12px;
+  font-size: 11px;
+  color: #555;
+  text-align: center;
+}
+.powered a { color: #f48fb1; text-decoration: none; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/" class="topbar-logo">💗 Papely</a>
+  <div class="page-nav">
+    <button id="btnPrev" onclick="mudarPagina(-1)" disabled>‹</button>
+    <span class="page-info" id="pageInfo" style="display:none"></span>
+    <button id="btnNext" onclick="mudarPagina(1)"  disabled>›</button>
+  </div>
+</div>
+
+<div id="statusEl" class="status">
+  <div class="status-card">
+    <span class="emoji">⏳</span>
+    <h2>Carregando...</h2>
+  </div>
+</div>
+
+<div class="viewer-wrap" id="viewerWrap" style="display:none;">
+  <div class="pdf-container" id="pdfContainer">
+    <canvas id="pdfCanvas"></canvas>
+    <div id="hotspotOverlay"></div>
+  </div>
+</div>
+
+<div class="powered" id="poweredBy" style="display:none;">
+  Feito com <a href="/">💗 Papely</a>
+</div>
+
+<!-- Gift modal -->
+<div class="modal-overlay" id="giftModal" onclick="fecharModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🎁 Lista de Presentes</div>
+    <div id="giftItems"></div>
+    <button class="modal-close" onclick="fecharModal()">Fechar</button>
+  </div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let pdfDoc      = null;
+let currentPage = 1;
+let totalPages  = 1;
+let hotspots    = [];
+
+function showStatus(emoji, titulo, msg, link) {
+  document.getElementById('viewerWrap').style.display  = 'none';
+  document.getElementById('poweredBy').style.display   = 'none';
+  document.getElementById('statusEl').style.display    = 'flex';
+  document.getElementById('statusEl').innerHTML = `
+    <div class="status-card">
+      <span class="emoji">${emoji}</span>
+      <h2>${titulo}</h2>
+      ${msg ? `<p>${msg}</p>` : ''}
+      ${link ? `<a href="/">Criar um PDF interativo</a>` : ''}
+    </div>
+  `;
+}
+
+function hideStatus() {
+  document.getElementById('statusEl').style.display    = 'none';
+  document.getElementById('viewerWrap').style.display  = 'flex';
+  document.getElementById('poweredBy').style.display   = 'block';
+}
+
+// ── Action builders ────────────────────────────────────────────
+function buildAction(hs) {
+  switch (hs.type) {
+    case 'whatsapp': {
+      const num = hs.value.replace(/\D/g,'');
+      const msg = encodeURIComponent(`Olá! Vi o convite e quero interagir 🎉`);
+      return { href: `https://wa.me/${num}?text=${msg}`, onclick: null };
+    }
+    case 'maps': {
+      const val = hs.value;
+      const href = val.startsWith('http') ? val : `https://maps.google.com/?q=${encodeURIComponent(val)}`;
+      return { href, onclick: null };
+    }
+    case 'link':
+      return { href: hs.value || '#', onclick: null };
+    case 'presentes':
+      return { href: null, onclick: `abrirPresentes('${hs.id}')` };
+    default:
+      return { href: '#', onclick: null };
+  }
+}
+
+// ── Render hotspots (public — completely invisible clickable areas) ───
+function renderOverlay() {
+  const overlay = document.getElementById('hotspotOverlay');
+  const pageHotspots = hotspots.filter(h => (h.page || 1) === currentPage);
+
+  overlay.innerHTML = pageHotspots.map(hs => {
+    const action = buildAction(hs);
+    const tag    = action.href ? 'a' : 'button';
+    const attrs  = action.href
+      ? `href="${action.href}" target="_blank" rel="noopener"`
+      : `onclick="${action.onclick}"`;
+
+    const w = hs.w || 8;
+    const h = hs.h || 8;
+
+    // Invisible area — matches the PDF icon size, no visual indicator
+    return `
+      <${tag}
+        class="hs-public"
+        ${attrs}
+        style="left:${hs.x}%;top:${hs.y}%;width:${w}%;height:${h}%;"
+        aria-label="${hs.label}"
+      ></${tag}>
+    `;
+  }).join('');
+}
+
+// ── Gift modal ─────────────────────────────────────────────────
+function abrirPresentes(id) {
+  const hs = hotspots.find(h => h.id === id);
+  if (!hs) return;
+
+  const items = hs.value
+    ? hs.value.split('\n').map(s => s.trim()).filter(Boolean)
+    : [];
+
+  if (!items.length) return;
+
+  document.getElementById('giftItems').innerHTML = items.map(item => `
+    <div class="gift-item">
+      <div class="gift-icon">🎁</div>
+      <span>${item}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('giftModal').classList.add('open');
+}
+
+function fecharModal(e) {
+  if (!e || e.target === e.currentTarget || e.target.classList.contains('modal-close')) {
+    document.getElementById('giftModal').classList.remove('open');
+  }
+}
+
+// ── PDF rendering ──────────────────────────────────────────────
+async function renderPage(num) {
+  const page      = await pdfDoc.getPage(num);
+  const canvas    = document.getElementById('pdfCanvas');
+  const container = document.getElementById('pdfContainer');
+
+  const containerW = Math.min(container.clientWidth || 800, 800);
+  const viewport0  = page.getViewport({ scale: 1 });
+  const scale      = containerW / viewport0.width;
+  const viewport   = page.getViewport({ scale });
+
+  canvas.width  = viewport.width;
+  canvas.height = viewport.height;
+
+  await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+  renderOverlay();
+}
+
+function mudarPagina(delta) {
+  const next = currentPage + delta;
+  if (next < 1 || next > totalPages) return;
+  currentPage = next;
+  renderPage(currentPage);
+  updateNav();
+}
+
+function updateNav() {
+  const info = document.getElementById('pageInfo');
+  if (totalPages > 1) {
+    info.style.display = 'block';
+    info.textContent   = `${currentPage} / ${totalPages}`;
+  }
+  document.getElementById('btnPrev').disabled = currentPage <= 1;
+  document.getElementById('btnNext').disabled = currentPage >= totalPages;
+}
+
+// ── Load ───────────────────────────────────────────────────────
+async function carregar() {
+  const id = new URLSearchParams(window.location.search).get('id');
+  if (!id) { showStatus('😕','Link inválido','Nenhum ID de documento encontrado.', true); return; }
+
+  try {
+    const res = await fetch(`/hotspot/${id}`);
+    if (!res.ok) throw new Error();
+    const doc = await res.json();
+
+    hotspots = doc.hotspots || [];
+
+    pdfDoc     = await pdfjsLib.getDocument(doc.pdfUrl).promise;
+    totalPages = pdfDoc.numPages;
+    currentPage = 1;
+
+    hideStatus();
+    await renderPage(1);
+    updateNav();
+  } catch {
+    showStatus('😕','Documento não encontrado','Este link pode ter expirado.', true);
+  }
+}
+
+window.addEventListener('resize', () => {
+  if (pdfDoc) renderPage(currentPage);
+});
+
+carregar();
+</script>
+</body>
+</html>

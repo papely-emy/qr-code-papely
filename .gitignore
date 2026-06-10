@@ -1,2 +1,15 @@
-# node
+# Node
 node_modules/
+
+# Variáveis de ambiente — NUNCA commitar
+.env
+backend/.env
+*.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+background.jpg
+
+.claude/

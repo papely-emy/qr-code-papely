@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Papely — Criar Convite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<style>
+:root {
+  --pink: #d81b60;
+  --pink-dark: #880e4f;
+  --pink-light: #ec407a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 20% 20%, #fce4ec 0%, #f8bbd0 40%, #fce4ec 70%, #fff0f5 100%);
+  padding: 24px 20px 48px;
+}
+
+/* ── NAV ─────────────────────────────────────────── */
+nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 1140px;
+  margin: 0 auto 28px;
+}
+
+.back { color: var(--pink); text-decoration: none; font-size: 13px; font-weight: 600; opacity: 0.8; }
+.back:hover { opacity: 1; }
+.nav-logo { font-size: 17px; font-weight: 800; color: var(--pink); }
+
+/* ── LAYOUT ─────────────────────────────────────────── */
+.main {
+  max-width: 1140px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .main { grid-template-columns: 1fr; }
+  .col-preview { order: -1; }
+}
+
+/* ── CARD ─────────────────────────────────────────── */
+.card {
+  background: white;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 4px 24px rgba(216, 27, 96, 0.1);
+}
+
+.card-title { font-size: 1.3rem; font-weight: 800; color: var(--pink-dark); letter-spacing: -0.4px; }
+.card-sub   { font-size: 0.82rem; color: #bbb; margin-top: 4px; margin-bottom: 24px; }
+
+/* ── SECTIONS ─────────────────────────────────────── */
+.section-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--pink);
+  margin: 20px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f5f5f5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── TIPO SELECTOR ─────────────────────────────────── */
+.tipo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.tipo-btn {
+  border: 2px solid #f0f0f0;
+  background: white;
+  border-radius: 12px;
+  padding: 10px 4px;
+  cursor: pointer;
+  text-align: center;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.tipo-btn .tb-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+.tipo-btn .tb-name { font-size: 9px; font-weight: 700; color: #bbb; letter-spacing: 0.2px; line-height: 1.3; }
+
+.tipo-btn.active { border-color: var(--pink); background: #fce4ec; }
+.tipo-btn.active .tb-name { color: var(--pink); }
+
+/* ── FIELDS ─────────────────────────────────────────── */
+.field { margin-bottom: 12px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--pink-dark);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input[type="text"],
+input[type="tel"],
+input[type="date"],
+input[type="time"],
+input[type="url"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #f0f0f0;
+  border-radius: 10px;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+  color: #333;
+  transition: border-color 0.2s;
+  background: white;
+}
+
+input:focus, textarea:focus, select:focus { border-color: var(--pink-light); }
+textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+/* ── TEMA SELECTOR ─────────────────────────────────── */
+.tema-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tema-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.tema-swatch.active { border-color: #333; transform: scale(1.12); }
+
+/* ── PRESENTES ─────────────────────────────────────── */
+.present-list { margin-bottom: 8px; }
+
+.present-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #444;
+  animation: itemIn 0.2s ease;
+}
+
+@keyframes itemIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+.present-item .gift-icon { font-size: 16px; }
+.present-item span { flex: 1; }
+
+.present-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ddd;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.15s;
+}
+.present-remove:hover { color: var(--pink); }
+
+.add-present-row {
+  display: flex;
+  gap: 8px;
+}
+
+.add-present-row input { flex: 1; }
+
+.btn-add {
+  padding: 10px 14px;
+  background: var(--pink);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.btn-add:hover { opacity: 0.85; }
+
+/* ── BUTTON ─────────────────────────────────────────── */
+.btn-create {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, var(--pink-light), var(--pink));
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 24px;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.btn-create:active { transform: scale(0.98); }
+
+/* ── SUCCESS ─────────────────────────────────────────── */
+.success-box {
+  display: none;
+  margin-top: 16px;
+  padding: 20px;
+  background: #fff8fb;
+  border: 1px solid #f5c6da;
+  border-radius: 14px;
+}
+.success-box.visible { display: block; }
+.success-box h3 { font-size: 14px; color: var(--pink-dark); margin-bottom: 10px; }
+
+.share-link {
+  background: white;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 11px;
+  color: #888;
+  word-break: break-all;
+  margin-bottom: 8px;
+}
+
+.btn-copy {
+  width: 100%;
+  padding: 11px;
+  background: #f5f5f5;
+  color: var(--pink-dark);
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 14px;
+  transition: background 0.15s;
+}
+.btn-copy:hover { background: #f0e0e8; }
+
+.qr-center { display: flex; justify-content: center; }
+
+/* ── PREVIEW CARD ─────────────────────────────────────── */
+.preview-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--pink-dark);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--pink);
+  border-radius: 50%;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── MINI INVITE (preview) ─────────────────────────────── */
+/* These mirror convite.html but scaled down */
+.mini-invite {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.mini-glitter {
+  height: 56px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mini-glitter::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.5) 1.5px, transparent 1.5px);
+  background-size: 14px 14px, 20px 20px;
+  background-position: 0 0, 7px 7px;
+}
+
+.mini-body {
+  background: white;
+  padding: 18px 16px 14px;
+  text-align: center;
+}
+
+.mini-badge { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.55; margin-bottom: 6px; }
+.mini-nome  { font-family: 'Dancing Script', cursive; font-size: 2.1rem; font-weight: 700; line-height: 1.05; margin-bottom: 2px; }
+.mini-sub   { font-family: 'Playfair Display', serif; font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; }
+.mini-deco  { font-size: 11px; opacity: 0.45; margin-bottom: 8px; }
+.mini-msg   { font-size: 10px; color: #888; font-style: italic; line-height: 1.55; margin-bottom: 12px; max-width: 240px; margin-left: auto; margin-right: auto; }
+
+.mini-date {
+  display: flex;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0 auto 10px;
+  max-width: 230px;
+}
+
+.mini-dc {
+  flex: 1;
+  padding: 7px 4px;
+  text-align: center;
+}
+.mini-dc + .mini-dc { border-left: 1px solid #eee; }
+.mini-dc .l { font-size: 7px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #ccc; margin-bottom: 2px; }
+.mini-dc .v { font-size: 10px; font-weight: 800; }
+.mini-dc.center .v { font-size: 1.4rem; font-family: 'Playfair Display', serif; }
+
+.mini-local { font-size: 10px; color: #999; margin-bottom: 12px; line-height: 1.4; }
+
+.mini-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.mini-act {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.mini-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+.mini-act-label { font-size: 7px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; text-align: center; line-height: 1.3; max-width: 44px; }
+
+.mini-hint { font-size: 8px; color: #ccc; font-style: italic; text-align: center; margin-bottom: 6px; }
+
+.mini-powered { font-size: 9px; color: #ddd; text-align: center; padding: 8px; background: white; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="back">← Início</a>
+  <span class="nav-logo">💗 Papely</span>
+</nav>
+
+<div class="main">
+
+  <!-- ═══ FORM COLUMN ═══ -->
+  <div class="card">
+    <div class="card-title">🎉 Criar Convite Interativo</div>
+    <div class="card-sub">Monte, personalize e compartilhe via link ou QR Code</div>
+
+    <!-- Tipo -->
+    <div class="section-title">✨ Tipo de evento</div>
+    <div class="tipo-grid">
+      <button class="tipo-btn active" data-tipo="aniversario15" onclick="setTipo(this)">
+        <span class="tb-icon">👑</span><span class="tb-name">15 Anos</span>
+      </button>
+      <button class="tipo-btn" data-tipo="aniversario" onclick="setTipo(this)">
+        <span class="tb-icon">🎂</span><span class="tb-name">Aniversário</span>
+      </button>
+      <button class="tipo-btn" data-tipo="casamento" onclick="setTipo(this)">
+        <span class="tb-icon">💍</span><span class="tb-name">Casamento</span>
+      </button>
+      <button class="tipo-btn" data-tipo="cha_bebe" onclick="setTipo(this)">
+        <span class="tb-icon">🍼</span><span class="tb-name">Chá Bebê</span>
+      </button>
+      <button class="tipo-btn" data-tipo="cha_revelacao" onclick="setTipo(this)">
+        <span class="tb-icon">🎀</span><span class="tb-name">Revelação</span>
+      </button>
+      <button class="tipo-btn" data-tipo="festa" onclick="setTipo(this)">
+        <span class="tb-icon">🎉</span><span class="tb-name">Festa</span>
+      </button>
+      <button class="tipo-btn" data-tipo="formatura" onclick="setTipo(this)">
+        <span class="tb-icon">🎓</span><span class="tb-name">Formatura</span>
+      </button>
+      <button class="tipo-btn" data-tipo="corporativo" onclick="setTipo(this)">
+        <span class="tb-icon">🏢</span><span class="tb-name">Corporativo</span>
+      </button>
+    </div>
+
+    <!-- Identidade -->
+    <div class="section-title">🎀 Identidade do convite</div>
+
+    <div class="field">
+      <label>Nome / Título principal *</label>
+      <input type="text" id="nome" placeholder="Ex: Samira" oninput="atualizar()">
+    </div>
+
+    <div class="field">
+      <label>Subtítulo</label>
+      <input type="text" id="subtitulo" placeholder="Ex: 15 anos · Noivos: Maria &amp; João" oninput="atualizar()">
+    </div>
+
+    <div class="field">
+      <label>Mensagem personalizada</label>
+      <textarea id="mensagem" placeholder="Neste dia especial, sua presença é mais que importante!" oninput="atualizar()"></textarea>
+    </div>
+
+    <!-- Cor -->
+    <div class="section-title">🎨 Tema de cores</div>
+    <div class="tema-row" id="temaRow">
+      <div class="tema-swatch active" data-tema="rosa"     style="background: linear-gradient(135deg,#c9184a,#ff8fab)" title="Rosa"     onclick="setTema(this)"></div>
+      <div class="tema-swatch"        data-tema="lilas"    style="background: linear-gradient(135deg,#6a0dad,#ce93d8)" title="Lilás"    onclick="setTema(this)"></div>
+      <div class="tema-swatch"        data-tema="azul"     style="background: linear-gradient(135deg,#0d47a1,#64b5f6)" title="Azul"     onclick="setTema(this)"></div>
+      <div class="tema-swatch"        data-tema="dourado"  style="background: linear-gradient(135deg,#8b5e00,#f4c842)" title="Dourado"  onclick="setTema(this)"></div>
+      <div class="tema-swatch"        data-tema="verde"    style="background: linear-gradient(135deg,#1b5e20,#81c784)" title="Verde"    onclick="setTema(this)"></div>
+    </div>
+
+    <!-- Data e hora -->
+    <div class="section-title">📅 Data e hora</div>
+    <div class="field-row">
+      <div class="field">
+        <label>Data *</label>
+        <input type="date" id="data" oninput="atualizar()">
+      </div>
+      <div class="field">
+        <label>Horário</label>
+        <input type="time" id="hora" oninput="atualizar()">
+      </div>
+    </div>
+
+    <!-- Local -->
+    <div class="section-title">📍 Local</div>
+
+    <div class="field">
+      <label>Nome / endereço do local</label>
+      <input type="text" id="local" placeholder="Ex: Salão Boa Festa — Rua Alegre, 123" oninput="atualizar()">
+    </div>
+
+    <!-- Botões interativos -->
+    <div class="section-title">💬 Botões interativos</div>
+
+    <div class="field">
+      <label>WhatsApp para confirmação de presença</label>
+      <input type="tel" id="whatsapp" placeholder="Ex: 5511999990000 (com código do país)" oninput="atualizar()">
+    </div>
+
+    <div class="field">
+      <label>Google Maps — link ou endereço completo</label>
+      <input type="text" id="maps" placeholder="Cole o link do Google Maps ou o endereço completo" oninput="atualizar()">
+    </div>
+
+    <!-- Lista de presentes -->
+    <div class="section-title">🎁 Lista de presentes (opcional)</div>
+
+    <div class="present-list" id="presentList"></div>
+
+    <div class="add-present-row">
+      <input type="text" id="presentInput" placeholder="Ex: Perfume Importado" onkeydown="if(event.key==='Enter'){adicionarPresente();event.preventDefault()}">
+      <button class="btn-add" onclick="adicionarPresente()" title="Adicionar">+</button>
+    </div>
+
+    <button class="btn-create" onclick="criarConvite()">Criar Convite ✨</button>
+
+    <!-- Resultado -->
+    <div class="success-box" id="successBox">
+      <h3>🎉 Convite criado! Compartilhe:</h3>
+      <div class="share-link" id="shareLink"></div>
+      <button class="btn-copy" onclick="copiarLink()">Copiar link 📋</button>
+      <div class="qr-center">
+        <canvas id="qrConvite" style="max-width:150px;width:100%;background:white;padding:8px;border-radius:10px;box-shadow:0 2px 12px rgba(216,27,96,0.15);"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PREVIEW COLUMN ═══ -->
+  <div class="card col-preview">
+    <div class="preview-badge">
+      <span class="live-dot"></span>
+      Prévia ao vivo
+    </div>
+    <div id="previewRoot"></div>
+  </div>
+
+</div><!-- .main -->
+
+<script>
+// ── State ────────────────────────────────────────────────
+let tipoAtual  = 'aniversario15';
+let temaAtual  = 'rosa';
+let presentes  = [];
+let linkGerado = '';
+
+// ── Theme colors map (mirrors convite.html CSS vars) ──────
+const TEMAS = {
+  rosa:    { p:'#c9184a', mid:'#ff4d6d', light:'#ff8fab', pale:'#ffccd5', btn:'#c9184a' },
+  lilas:   { p:'#6a0dad', mid:'#9b59b6', light:'#ce93d8', pale:'#e8d5f5', btn:'#6a0dad' },
+  azul:    { p:'#0d47a1', mid:'#1976d2', light:'#64b5f6', pale:'#bbdefb', btn:'#0d47a1' },
+  dourado: { p:'#8b5e00', mid:'#c8960c', light:'#f4c842', pale:'#fff3cd', btn:'#8b5e00' },
+  verde:   { p:'#1b5e20', mid:'#388e3c', light:'#81c784', pale:'#c8e6c9', btn:'#1b5e20' },
+};
+
+const TIPO_INFO = {
+  aniversario15: { badge:'Debutante',    icon:'👑' },
+  aniversario:   { badge:'Aniversário',  icon:'🎂' },
+  casamento:     { badge:'Casamento',    icon:'💍' },
+  cha_bebe:      { badge:'Chá de Bebê',  icon:'🍼' },
+  cha_revelacao: { badge:'Chá Revelação',icon:'🎀' },
+  festa:         { badge:'Festa',        icon:'🎉' },
+  formatura:     { badge:'Formatura',    icon:'🎓' },
+  corporativo:   { badge:'Evento',       icon:'🏢' },
+};
+
+const MESES_CURTO = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+const DIAS_SEMANA = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+
+// ── Setters ───────────────────────────────────────────────
+function setTipo(btn) {
+  document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  tipoAtual = btn.dataset.tipo;
+  atualizar();
+}
+
+function setTema(el) {
+  document.querySelectorAll('.tema-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  temaAtual = el.dataset.tema;
+  atualizar();
+}
+
+// ── Presentes ─────────────────────────────────────────────
+function adicionarPresente() {
+  const input = document.getElementById('presentInput');
+  const val   = input.value.trim();
+  if (!val) return;
+  presentes.push(val);
+  input.value = '';
+  renderPresentList();
+  atualizar();
+}
+
+function removerPresente(i) {
+  presentes.splice(i, 1);
+  renderPresentList();
+  atualizar();
+}
+
+function renderPresentList() {
+  document.getElementById('presentList').innerHTML = presentes.map((p, i) => `
+    <div class="present-item">
+      <span class="gift-icon">🎁</span>
+      <span>${p}</span>
+      <button class="present-remove" onclick="removerPresente(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+// ── Date parsing ──────────────────────────────────────────
+function parseDateParts(d) {
+  const [y, m, dd] = d.split('-');
+  const obj = new Date(parseInt(y), parseInt(m)-1, parseInt(dd));
+  return {
+    diaSemana: DIAS_SEMANA[obj.getDay()],
+    dia: dd,
+    mes: MESES_CURTO[parseInt(m)-1],
+    ano: y,
+  };
+}
+
+// ── Preview ───────────────────────────────────────────────
+function atualizar() {
+  const nome      = document.getElementById('nome').value      || 'Nome';
+  const subtitulo = document.getElementById('subtitulo').value;
+  const mensagem  = document.getElementById('mensagem').value;
+  const data      = document.getElementById('data').value;
+  const hora      = document.getElementById('hora').value;
+  const local     = document.getElementById('local').value;
+  const whatsapp  = document.getElementById('whatsapp').value.trim();
+  const maps      = document.getElementById('maps').value.trim();
+
+  const tipo = TIPO_INFO[tipoAtual] || TIPO_INFO.festa;
+  const t    = TEMAS[temaAtual]     || TEMAS.rosa;
+  const dp   = data ? parseDateParts(data) : null;
+
+  const temPresentes = presentes.length > 0;
+  const temWA        = !!whatsapp;
+  const temMaps      = !!maps;
+
+  const glitterStyle = `
+    background: linear-gradient(135deg,
+      #3c001a 0%, ${t.p} 15%, ${t.mid} 30%, ${t.light} 45%,
+      ${t.pale} 52%, ${t.light} 59%, ${t.mid} 72%, ${t.p} 87%, #3c001a 100%
+    );
+  `;
+
+  document.getElementById('previewRoot').innerHTML = `
+    <div class="mini-invite">
+      <!-- glitter top -->
+      <div class="mini-glitter" style="${glitterStyle}"></div>
+
+      <!-- body -->
+      <div class="mini-body">
+        <div class="mini-badge" style="color:${t.p};">${tipo.icon} ${tipo.badge}</div>
+        <div class="mini-nome"  style="color:${t.p};">${nome}</div>
+        ${subtitulo ? `<div class="mini-sub" style="color:${t.p};">${subtitulo}</div>` : ''}
+        <div class="mini-deco">✦ ✧ ✦</div>
+        ${mensagem ? `<div class="mini-msg">${mensagem}</div>` : ''}
+
+        ${dp ? `
+          <div class="mini-date">
+            <div class="mini-dc">
+              <div class="l">Dia</div>
+              <div class="v" style="color:${t.p};">${dp.diaSemana}</div>
+              ${hora ? `<div style="font-size:8px;color:#bbb;">${hora}h</div>` : ''}
+            </div>
+            <div class="mini-dc center">
+              <div class="l">Data</div>
+              <div class="v" style="color:${t.p};">${dp.dia}</div>
+            </div>
+            <div class="mini-dc">
+              <div class="l">Mês</div>
+              <div class="v" style="color:${t.p};">${dp.mes}</div>
+              <div style="font-size:8px;color:#bbb;">${dp.ano}</div>
+            </div>
+          </div>
+        ` : ''}
+
+        ${local ? `<div class="mini-local">📍 ${local}</div>` : ''}
+
+        ${(temPresentes || temWA || temMaps) ? `
+          <div class="mini-hint">Clique nos ícones para interagir</div>
+          <div class="mini-actions">
+            ${temPresentes ? `
+              <div class="mini-act">
+                <div class="mini-circle" style="background:${t.btn};">🎁</div>
+                <div class="mini-act-label" style="color:${t.p};">Lista de Presentes</div>
+              </div>` : ''}
+            ${temWA ? `
+              <div class="mini-act">
+                <div class="mini-circle" style="background:${t.btn};">💬</div>
+                <div class="mini-act-label" style="color:${t.p};">Confirmar Presença</div>
+              </div>` : ''}
+            ${temMaps ? `
+              <div class="mini-act">
+                <div class="mini-circle" style="background:${t.btn};">📍</div>
+                <div class="mini-act-label" style="color:${t.p};">Endereço no Mapa</div>
+              </div>` : ''}
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- glitter bottom -->
+      <div class="mini-glitter" style="${glitterStyle}"></div>
+
+      <div class="mini-powered">💗 Papely</div>
+    </div>
+  `;
+}
+
+// ── Create ────────────────────────────────────────────────
+async function criarConvite() {
+  const nome      = document.getElementById('nome').value.trim();
+  const data      = document.getElementById('data').value;
+  const whatsapp  = document.getElementById('whatsapp').value.trim();
+
+  if (!nome) { alert('Preencha o nome / título principal 😊'); return; }
+  if (!data) { alert('Preencha a data do evento 😊'); return; }
+
+  const payload = {
+    tipo:      tipoAtual,
+    tema:      temaAtual,
+    nome,
+    subtitulo: document.getElementById('subtitulo').value.trim(),
+    mensagem:  document.getElementById('mensagem').value.trim(),
+    data,
+    hora:      document.getElementById('hora').value,
+    local:     document.getElementById('local').value.trim(),
+    whatsapp:  whatsapp.replace(/\D/g, ''),
+    maps:      document.getElementById('maps').value.trim(),
+    presentes: [...presentes],
+  };
+
+  try {
+    const res = await fetch('/convite', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Erro ao criar convite');
+    }
+
+    const result = await res.json();
+    linkGerado = window.location.origin + result.url;
+
+    document.getElementById('shareLink').textContent = linkGerado;
+    document.getElementById('successBox').classList.add('visible');
+
+    setTimeout(() => {
+      QRCode.toCanvas(document.getElementById('qrConvite'), linkGerado, {
+        width: 150, margin: 2,
+        color: { dark: TEMAS[temaAtual]?.p || '#d81b60', light: '#ffffff' },
+      });
+    }, 0);
+
+    document.getElementById('successBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (err) {
+    alert('Erro: ' + err.message);
+  }
+}
+
+function copiarLink() {
+  if (!linkGerado) return;
+  navigator.clipboard.writeText(linkGerado)
+    .then(() => alert('Link copiado! 📋'))
+    .catch(() => alert('Copie manualmente:\n' + linkGerado));
+}
+
+// Init
+atualizar();
+</script>
+
+</body>
+</html>

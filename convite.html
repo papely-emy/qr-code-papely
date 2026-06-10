@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convite — Papely</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ── Temas ─────────────────────────────────────────── */
+:root {
+  --t-primary:  #c9184a;
+  --t-mid:      #ff4d6d;
+  --t-light:    #ff8fab;
+  --t-pale:     #ffccd5;
+  --t-bg:       #fff5f8;
+  --t-btn:      #c9184a;
+  --t-btn-text: #fff;
+}
+
+.tema-lilas  { --t-primary:#6a0dad; --t-mid:#9b59b6; --t-light:#ce93d8; --t-pale:#e8d5f5; --t-bg:#f9f0ff; --t-btn:#6a0dad; }
+.tema-azul   { --t-primary:#0d47a1; --t-mid:#1976d2; --t-light:#64b5f6; --t-pale:#bbdefb; --t-bg:#f0f7ff; --t-btn:#0d47a1; }
+.tema-dourado{ --t-primary:#8b5e00; --t-mid:#c8960c; --t-light:#f4c842; --t-pale:#fff3cd; --t-bg:#fffdf0; --t-btn:#8b5e00; }
+.tema-verde  { --t-primary:#1b5e20; --t-mid:#388e3c; --t-light:#81c784; --t-pale:#c8e6c9; --t-bg:#f0fff2; --t-btn:#1b5e20; }
+
+/* ── Página ─────────────────────────────────────────── */
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--t-bg);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+/* ── Card ─────────────────────────────────────────── */
+.invite-card {
+  width: 100%;
+  max-width: 420px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 60px rgba(0,0,0,0.15);
+  animation: fadeIn 0.5s ease both;
+}
+
+@media (min-width: 480px) {
+  body { background: #f0f0f0; padding: 24px; }
+  .invite-card { min-height: auto; border-radius: 24px; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Glitter strips ─────────────────────────────────── */
+.glitter {
+  width: 100%;
+  height: 100px;
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg,
+      #5c001a 0%, var(--t-primary) 15%,
+      var(--t-mid) 30%, var(--t-light) 45%,
+      var(--t-pale) 52%,
+      var(--t-light) 59%, var(--t-mid) 72%,
+      var(--t-primary) 87%, #5c001a 100%
+    );
+}
+
+/* sparkle dots */
+.glitter::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.6) 1.5px, transparent 1.5px),
+    radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px);
+  background-size: 18px 18px, 26px 26px, 12px 12px;
+  background-position: 0 0, 9px 9px, 4px 14px;
+}
+
+/* shine sweep */
+.glitter::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255,255,255,0.25) 50%,
+    transparent 70%
+  );
+  animation: shine 3s ease-in-out infinite;
+}
+
+@keyframes shine {
+  0%, 100% { transform: translateX(-100%); }
+  50%       { transform: translateX(100%); }
+}
+
+/* ── Card Body ─────────────────────────────────────── */
+.card-body {
+  flex: 1;
+  padding: 28px 28px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: white;
+}
+
+/* tipo badge */
+.tipo-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--t-primary);
+  opacity: 0.65;
+  margin-bottom: 12px;
+}
+
+/* nome principal */
+.invite-nome {
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(3rem, 12vw, 3.8rem);
+  font-weight: 700;
+  color: var(--t-primary);
+  line-height: 1.05;
+  margin-bottom: 4px;
+}
+
+/* subtítulo */
+.invite-subtitulo {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.2rem, 5vw, 1.5rem);
+  font-weight: 700;
+  color: var(--t-primary);
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+/* sparkle divider */
+.sparkle-divider {
+  font-size: 18px;
+  margin: 10px 0 16px;
+  opacity: 0.6;
+}
+
+/* mensagem */
+.invite-mensagem {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 0.88rem;
+  color: #888;
+  line-height: 1.65;
+  max-width: 300px;
+  margin-bottom: 20px;
+}
+
+/* ── Date Display ─────────────────────────────────── */
+.date-display {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1.5px solid var(--t-pale);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.date-col {
+  flex: 1;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.date-col + .date-col {
+  border-left: 1.5px solid var(--t-pale);
+}
+
+.date-col .dc-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--t-light);
+  margin-bottom: 4px;
+}
+
+.date-col .dc-value {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--t-primary);
+  line-height: 1.1;
+}
+
+.date-col .dc-sub {
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+.date-col.dc-day .dc-value {
+  font-size: 32px;
+  font-weight: 900;
+  font-family: 'Playfair Display', serif;
+}
+
+/* ── Local ─────────────────────────────────────────── */
+.invite-local {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 20px;
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+.invite-local strong {
+  color: var(--t-primary);
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+/* ── Action Buttons ─────────────────────────────────── */
+.actions-hint {
+  font-size: 10px;
+  color: #bbb;
+  letter-spacing: 0.5px;
+  margin-bottom: 14px;
+  font-style: italic;
+}
+
+.actions-row {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.action-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--t-btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  transition: transform 0.15s, box-shadow 0.15s;
+  color: var(--t-btn-text);
+}
+
+.action-btn:active .action-circle,
+.action-btn:hover .action-circle {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.action-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--t-primary);
+  text-align: center;
+  line-height: 1.3;
+  max-width: 64px;
+}
+
+/* ── Powered by ─────────────────────────────────────── */
+.powered-by {
+  padding: 14px;
+  font-size: 11px;
+  color: #ccc;
+  text-align: center;
+}
+
+.powered-by a { color: var(--t-primary); text-decoration: none; font-weight: 700; opacity: 0.7; }
+
+/* ── Gift Modal ─────────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 100;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-overlay.open { display: flex; animation: overlayIn 0.25s ease; }
+
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-sheet {
+  background: white;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 24px 24px 0 0;
+  padding: 28px 24px 40px;
+  animation: sheetUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--t-primary);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.gift-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 14px;
+  color: #444;
+}
+
+.gift-item:last-child { border-bottom: none; }
+
+.gift-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--t-pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.modal-close {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: var(--t-primary);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── Loading / Error ─────────────────────────────────── */
+.status-card {
+  text-align: center;
+  padding: 60px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-card .emoji { font-size: 56px; }
+.status-card h2 { font-size: 1.2rem; color: #555; font-weight: 700; }
+.status-card p  { font-size: 0.9rem; color: #bbb; line-height: 1.6; }
+.status-card a  {
+  margin-top: 8px;
+  display: inline-block;
+  background: var(--t-primary);
+  color: white;
+  padding: 12px 28px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+}
+</style>
+</head>
+<body>
+
+<div class="invite-card" id="inviteCard">
+  <!-- rendered by JS -->
+  <div class="status-card">
+    <span class="emoji">⏳</span>
+    <h2>Carregando convite...</h2>
+  </div>
+</div>
+
+<!-- Gift Modal -->
+<div class="modal-overlay" id="giftModal" onclick="fecharModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🎁 Lista de Presentes</div>
+    <div id="giftListItems"></div>
+    <button class="modal-close" onclick="fecharModal()">Fechar</button>
+  </div>
+</div>
+
+<script>
+const MESES_CURTO = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+const MESES_LONGO = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                     'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DIAS_SEMANA = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+
+const TIPO_INFO = {
+  aniversario15: { badge: 'Debutante',    icon: '👑' },
+  aniversario:   { badge: 'Aniversário',  icon: '🎂' },
+  casamento:     { badge: 'Casamento',    icon: '💍' },
+  cha_bebe:      { badge: 'Chá de Bebê',  icon: '🍼' },
+  cha_revelacao: { badge: 'Chá Revelação',icon: '🎀' },
+  festa:         { badge: 'Festa',         icon: '🎉' },
+  formatura:     { badge: 'Formatura',     icon: '🎓' },
+  corporativo:   { badge: 'Evento',        icon: '🏢' },
+};
+
+function parseDateParts(dateStr) {
+  const [y, m, d] = dateStr.split('-');
+  const obj = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+  return {
+    diaSemana: DIAS_SEMANA[obj.getDay()],
+    dia:       d,
+    mes:       MESES_CURTO[parseInt(m)-1],
+    mesLongo:  MESES_LONGO[parseInt(m)-1],
+    ano:       y,
+  };
+}
+
+function waLink(numero, nome) {
+  const txt = encodeURIComponent(`Olá! Quero confirmar minha presença — ${nome} 🎉`);
+  return `https://wa.me/${numero.replace(/\D/g,'')}?text=${txt}`;
+}
+
+function mapsLink(val) {
+  if (!val) return '#';
+  if (val.startsWith('http')) return val;
+  return `https://maps.google.com/?q=${encodeURIComponent(val)}`;
+}
+
+let conviteData = null;
+
+function abrirPresentes() {
+  if (!conviteData?.presentes?.length) return;
+
+  const lista = conviteData.presentes.map(p => `
+    <div class="gift-item">
+      <div class="gift-icon">🎁</div>
+      <span>${p}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('giftListItems').innerHTML = lista;
+  document.getElementById('giftModal').classList.add('open');
+}
+
+function fecharModal(e) {
+  if (!e || e.target === e.currentTarget || e.currentTarget.tagName === 'BUTTON') {
+    document.getElementById('giftModal').classList.remove('open');
+  }
+}
+
+function renderConvite(c) {
+  conviteData = c;
+
+  const tipo  = TIPO_INFO[c.tipo] || TIPO_INFO.festa;
+  const tema  = c.tema || 'rosa';
+  const dp    = c.data ? parseDateParts(c.data) : null;
+
+  document.getElementById('inviteCard').className = `invite-card tema-${tema}`;
+  document.title = `${c.nome} — ${tipo.badge} | Papely`;
+
+  const temPresentes = c.presentes && c.presentes.length > 0;
+  const temMaps      = !!c.maps;
+  const temWhatsapp  = !!c.whatsapp;
+
+  document.getElementById('inviteCard').innerHTML = `
+    <!-- Glitter top -->
+    <div class="glitter"></div>
+
+    <!-- Body -->
+    <div class="card-body">
+      <div class="tipo-badge">${tipo.icon} ${tipo.badge}</div>
+
+      <div class="invite-nome">${c.nome}</div>
+
+      ${c.subtitulo ? `<div class="invite-subtitulo">${c.subtitulo}</div>` : ''}
+
+      <div class="sparkle-divider">✦ ✧ ✦</div>
+
+      ${c.mensagem ? `<div class="invite-mensagem">${c.mensagem}</div>` : ''}
+
+      ${dp ? `
+        <div class="date-display">
+          <div class="date-col">
+            <div class="dc-label">Dia</div>
+            <div class="dc-value">${dp.diaSemana}</div>
+            ${c.hora ? `<div class="dc-sub">${c.hora}h</div>` : ''}
+          </div>
+          <div class="date-col dc-day">
+            <div class="dc-label">Data</div>
+            <div class="dc-value">${dp.dia}</div>
+          </div>
+          <div class="date-col">
+            <div class="dc-label">Mês</div>
+            <div class="dc-value">${dp.mes}</div>
+            <div class="dc-sub">${dp.ano}</div>
+          </div>
+        </div>
+      ` : ''}
+
+      ${c.local ? `
+        <div class="invite-local">
+          <strong>📍 Local</strong>
+          ${c.local}
+        </div>
+      ` : ''}
+
+      ${(temPresentes || temWhatsapp || temMaps) ? `
+        <p class="actions-hint">Clique nos ícones para interagir</p>
+        <div class="actions-row">
+          ${temPresentes ? `
+            <button class="action-btn" onclick="abrirPresentes()" aria-label="Lista de presentes">
+              <div class="action-circle">🎁</div>
+              <span class="action-label">Lista de<br>Presentes</span>
+            </button>
+          ` : ''}
+
+          ${temWhatsapp ? `
+            <a href="${waLink(c.whatsapp, c.nome)}" target="_blank" rel="noopener" class="action-btn" aria-label="Confirmar presença">
+              <div class="action-circle">💬</div>
+              <span class="action-label">Confirmar<br>Presença</span>
+            </a>
+          ` : ''}
+
+          ${temMaps ? `
+            <a href="${mapsLink(c.maps)}" target="_blank" rel="noopener" class="action-btn" aria-label="Ver endereço no mapa">
+              <div class="action-circle">📍</div>
+              <span class="action-label">Endereço<br>no Mapa</span>
+            </a>
+          ` : ''}
+        </div>
+      ` : ''}
+    </div>
+
+    <!-- Glitter bottom -->
+    <div class="glitter"></div>
+
+    <div class="powered-by">Feito com <a href="/">💗 Papely</a></div>
+  `;
+}
+
+function renderErro(titulo, msg) {
+  document.getElementById('inviteCard').innerHTML = `
+    <div class="status-card">
+      <span class="emoji">😕</span>
+      <h2>${titulo}</h2>
+      <p>${msg}</p>
+      <a href="/">Criar um convite</a>
+    </div>
+  `;
+}
+
+async function carregar() {
+  const id = new URLSearchParams(window.location.search).get('id');
+  if (!id) { renderErro('Convite não encontrado', 'O link está incorreto ou expirado.'); return; }
+
+  try {
+    const res = await fetch(`/convite/${id}`);
+    if (!res.ok) throw new Error();
+    renderConvite(await res.json());
+  } catch {
+    renderErro('Convite não encontrado', 'Este convite pode ter expirado ou o link está incorreto.');
+  }
+}
+
+carregar();
+</script>
+
+</body>
+</html>
