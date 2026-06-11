@@ -7,8 +7,8 @@ spec:
     - host: papely-qrcode.site
       http:
         paths:
-          # API routes — handled by Node.js backend
-          - path: /upload
+          # Todas as rotas da API vão para o backend Node.js
+          - path: /api
             pathType: Prefix
             backend:
               service:
@@ -16,39 +16,7 @@ spec:
                 port:
                   number: 80
 
-          - path: /files
-            pathType: Prefix
-            backend:
-              service:
-                name: papely-backend
-                port:
-                  number: 80
-
-          - path: /convite/
-            pathType: Prefix
-            backend:
-              service:
-                name: papely-backend
-                port:
-                  number: 80
-
-          - path: /hotspot/
-            pathType: Prefix
-            backend:
-              service:
-                name: papely-backend
-                port:
-                  number: 80
-
-          - path: /qrcode
-            pathType: Prefix
-            backend:
-              service:
-                name: papely-backend
-                port:
-                  number: 80
-
-          # Static frontend — served by Nginx
+          # Tudo mais (HTML, CSS, JS) vai para o frontend Nginx
           - path: /
             pathType: Prefix
             backend:

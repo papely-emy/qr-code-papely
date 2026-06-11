@@ -37,6 +37,14 @@ nav {
 .back:hover { opacity: 1; }
 .nav-logo { font-size: 17px; font-weight: 800; color: var(--pink); }
 
+.btn-logout {
+  font-size: 12px; font-weight: 600; color: var(--pink);
+  background: none; border: 1.5px solid rgba(216,27,96,0.25);
+  border-radius: 20px; padding: 6px 16px; cursor: pointer;
+  font-family: inherit; opacity: 0.65; transition: opacity 0.2s; margin-left: auto;
+}
+.btn-logout:hover { opacity: 1; }
+
 /* ── LAYOUT ─────────────────────────────────────────── */
 .main {
   max-width: 1140px;
@@ -388,9 +396,21 @@ textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
 </head>
 <body>
 
+<style id="auth-veil">body{visibility:hidden}</style>
+<script>
+(async()=>{
+  try{
+    const r=await fetch('/api/auth/check');
+    if(!r.ok){window.location.replace('/login.html');return;}
+    document.getElementById('auth-veil').remove();
+  }catch{window.location.replace('/login.html');}
+})();
+</script>
+
 <nav>
   <a href="/" class="back">← Início</a>
   <span class="nav-logo">💗 Papely</span>
+  <button class="btn-logout" onclick="sair()">Sair</button>
 </nav>
 
 <div class="main">
@@ -723,7 +743,7 @@ async function criarConvite() {
   };
 
   try {
-    const res = await fetch('/convite', {
+    const res = await fetch('/api/convite', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(payload),
@@ -758,6 +778,11 @@ function copiarLink() {
   navigator.clipboard.writeText(linkGerado)
     .then(() => alert('Link copiado! 📋'))
     .catch(() => alert('Copie manualmente:\n' + linkGerado));
+}
+
+async function sair() {
+  await fetch('/api/auth/logout', { method: 'POST' }).catch(()=>{});
+  window.location.replace('/login.html');
 }
 
 // Init

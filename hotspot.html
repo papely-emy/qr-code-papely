@@ -31,6 +31,14 @@ nav {
 .back:hover { opacity: 1; }
 .nav-logo { font-size: 17px; font-weight: 800; color: var(--pink); }
 
+.btn-logout {
+  font-size: 12px; font-weight: 600; color: var(--pink);
+  background: none; border: 1.5px solid rgba(216,27,96,0.25);
+  border-radius: 20px; padding: 6px 16px; cursor: pointer;
+  font-family: inherit; opacity: 0.65; transition: opacity 0.2s; margin-left: auto;
+}
+.btn-logout:hover { opacity: 1; }
+
 /* ── LAYOUT ── */
 .page-wrap { max-width: 1300px; margin: 0 auto; }
 
@@ -289,9 +297,21 @@ textarea.cf-input { resize: vertical; min-height: 72px; line-height: 1.5; }
 </head>
 <body>
 
+<style id="auth-veil">body{visibility:hidden}</style>
+<script>
+(async()=>{
+  try{
+    const r=await fetch('/api/auth/check');
+    if(!r.ok){window.location.replace('/login.html');return;}
+    document.getElementById('auth-veil').remove();
+  }catch{window.location.replace('/login.html');}
+})();
+</script>
+
 <nav>
   <a href="/" class="back">← Início</a>
   <span class="nav-logo">💗 Papely</span>
+  <button class="btn-logout" onclick="sair()">Sair</button>
 </nav>
 
 <div class="page-wrap">
@@ -473,7 +493,7 @@ async function handleFile(file) {
     const form = new FormData();
     form.append('file', file);
 
-    const res = await fetch('/upload', { method: 'POST', body: form });
+    const res = await fetch('/api/upload', { method: 'POST', body: form });
     if (!res.ok) throw new Error('Falha no upload');
 
     const data = await res.json();
@@ -781,7 +801,7 @@ async function salvar() {
   };
 
   try {
-    const res = await fetch('/hotspot', {
+    const res = await fetch('/api/hotspot', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(payload),
@@ -816,6 +836,11 @@ function copiarLink() {
 window.addEventListener('resize', () => {
   if (pdfDoc) renderPage(currentPage);
 });
+
+async function sair() {
+  await fetch('/api/auth/logout', { method: 'POST' }).catch(()=>{});
+  window.location.replace('/login.html');
+}
 </script>
 </body>
 </html>

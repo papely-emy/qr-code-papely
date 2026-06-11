@@ -606,7 +606,7 @@ async function carregar() {
   if (!id) { renderErro('Convite não encontrado', 'O link está incorreto ou expirado.'); return; }
 
   try {
-    const res = await fetch(`/convite/${id}`);
+    const res = await fetch(`/api/convite/${id}`);
     if (!res.ok) throw new Error();
     renderConvite(await res.json());
   } catch {

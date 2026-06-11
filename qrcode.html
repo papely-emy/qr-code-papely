@@ -47,6 +47,22 @@ nav {
 }
 .back:hover { opacity: 1; }
 
+.btn-logout {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pink);
+  background: none;
+  border: 1.5px solid rgba(216,27,96,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-family: inherit;
+  opacity: 0.65;
+  transition: opacity 0.2s;
+  margin-left: auto;
+}
+.btn-logout:hover { opacity: 1; }
+
 .nav-logo {
   font-size: 17px;
   font-weight: 800;
@@ -253,10 +269,21 @@ input[type="color"] {
 </style>
 </head>
 <body>
+<style id="auth-veil">body{visibility:hidden}</style>
+<script>
+(async()=>{
+  try{
+    const r=await fetch('/api/auth/check');
+    if(!r.ok){window.location.replace('/login.html');return;}
+    document.getElementById('auth-veil').remove();
+  }catch{window.location.replace('/login.html');}
+})();
+</script>
 
 <nav>
   <a href="/" class="back">← Início</a>
   <span class="nav-logo">💗 Papely</span>
+  <button class="btn-logout" onclick="sair()">Sair</button>
 </nav>
 
 <div class="card">
@@ -385,7 +412,7 @@ async function uploadPDF() {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch("/upload", { method: "POST", body: formData });
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || "Erro no upload");
@@ -425,7 +452,7 @@ async function salvarQR() {
   saveStatus.className = "";
 
   try {
-    const res = await fetch("/qrcode", {
+    const res = await fetch("/api/qrcode", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -451,6 +478,11 @@ async function salvarQR() {
     saveBtn.disabled    = false;
     saveBtn.textContent = "Salvar no Supabase ☁️";
   }
+}
+
+async function sair() {
+  await fetch('/api/auth/logout', { method: 'POST' }).catch(()=>{});
+  window.location.replace('/login.html');
 }
 </script>
 

@@ -28,3 +28,5 @@ spec:
                 secretKeyRef:
                   name: papely-secrets
                   key: supabase-service-key
+            - name: NODE_ENV
+              value: "production"

@@ -71,6 +71,21 @@ nav {
   letter-spacing: 0.3px;
 }
 
+.btn-logout {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pink);
+  background: none;
+  border: 1.5px solid rgba(216,27,96,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-family: inherit;
+  opacity: 0.65;
+  transition: opacity 0.2s, border-color 0.2s;
+}
+.btn-logout:hover { opacity: 1; border-color: rgba(216,27,96,0.5); }
+
 /* ── HERO ── */
 .hero {
   text-align: center;
@@ -296,9 +311,21 @@ footer {
 </head>
 <body>
 
+<style id="auth-veil">body{visibility:hidden}</style>
+<script>
+(async()=>{
+  try{
+    const r=await fetch('/api/auth/check');
+    if(!r.ok){window.location.replace('/login.html');return;}
+    document.getElementById('auth-veil').remove();
+  }catch{window.location.replace('/login.html');}
+})();
+</script>
+
 <nav>
   <span class="nav-logo">💗 Papely</span>
   <span class="nav-tagline">Ferramentas criativas</span>
+  <button class="btn-logout" onclick="sair()">Sair</button>
 </nav>
 
 <section class="hero">
@@ -345,6 +372,13 @@ footer {
 </div>
 
 <footer>Feito com amor 💖 Papely</footer>
+
+<script>
+async function sair() {
+  await fetch('/api/auth/logout', { method: 'POST' }).catch(()=>{});
+  window.location.replace('/login.html');
+}
+</script>
 
 </body>
 </html>

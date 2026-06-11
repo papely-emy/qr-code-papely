@@ -347,7 +347,7 @@ async function carregar() {
   if (!id) { showStatus('😕','Link inválido','Nenhum ID de documento encontrado.', true); return; }
 
   try {
-    const res = await fetch(`/hotspot/${id}`);
+    const res = await fetch(`/api/hotspot/${id}`);
     if (!res.ok) throw new Error();
     const doc = await res.json();
 
