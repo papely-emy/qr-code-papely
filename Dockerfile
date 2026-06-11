@@ -1,12 +1,14 @@
 FROM nginx:alpine
 
-# Remove config padrão (opcional mas bom)
-RUN rm -rf /usr/share/nginx/html/*
+# Remove config padrão
+RUN rm -rf /usr/share/nginx/html/* /etc/nginx/conf.d/default.conf
 
-# Copia tudo pro nginx
-COPY . /usr/share/nginx/html
+# Config personalizada
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expõe porta 80
+# Copia apenas os arquivos HTML do frontend
+COPY *.html /usr/share/nginx/html/
+
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]

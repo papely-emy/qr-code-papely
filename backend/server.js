@@ -68,91 +68,10 @@ function authMiddleware(req, res, next) {
   next();
 }
 
-// ---------------------------------------------------------------------------
-// Setup de primeiro acesso — token gerado no console se não houver usuários
-// ---------------------------------------------------------------------------
-let setupToken = null;
-
-async function initSetup() {
-  try {
-    const { count, error } = await supabase
-      .from("users")
-      .select("*", { count: "exact", head: true });
-
-    // count === null → tabela não existe (Supabase retorna null sem error nesse caso)
-    const tableNotFound = error || count === null;
-
-    if (tableNotFound || count === 0) {
-      setupToken = randomBytes(16).toString("hex");
-
-      console.log("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-
-      if (tableNotFound) {
-        console.log("⚠️  Tabela 'users' não encontrada. Crie-a no Supabase:");
-        console.log("    CREATE TABLE users (");
-        console.log("      id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),");
-        console.log("      username      text UNIQUE NOT NULL,");
-        console.log("      password_hash text NOT NULL,");
-        console.log("      created_at    timestamptz DEFAULT now()");
-        console.log("    );");
-      } else {
-        console.log("🔑  PRIMEIRO ACESSO — nenhum usuário cadastrado.");
-      }
-
-      console.log("    Acesse: http://localhost:3000/setup.html");
-      console.log(`    Token : ${setupToken}`);
-      console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-    }
-  } catch (e) {
-    console.warn("⚠️  Erro ao verificar usuários:", e.message);
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Auth routes
 // ---------------------------------------------------------------------------
-app.get("/api/auth/setup-status", (_req, res) => {
-  res.json({ needsSetup: !!setupToken });
-});
-
-app.post("/api/auth/setup", async (req, res) => {
-  if (!setupToken) {
-    return res.status(403).json({ error: "Setup já foi concluído" });
-  }
-
-  const { token, username, password } = req.body;
-
-  if (!token || token !== setupToken) {
-    return res.status(403).json({ error: "Token de setup inválido" });
-  }
-  if (!username || !password) {
-    return res.status(400).json({ error: "Preencha usuário e senha" });
-  }
-  if (password.length < 6) {
-    return res.status(400).json({ error: "Senha deve ter pelo menos 6 caracteres" });
-  }
-
-  try {
-    const hash = await bcrypt.hash(password, 12);
-    const { error } = await supabase.from("users").insert({ username, password_hash: hash });
-
-    if (error) {
-      if (error.message.includes("unique") || error.message.includes("duplicate")) {
-        return res.status(400).json({ error: "Usuário já existe" });
-      }
-      if (error.message.includes("schema cache") || error.message.includes("not found")) {
-        return res.status(500).json({ error: "Tabela 'users' não existe no Supabase. Crie-a antes de continuar (veja o console do servidor)." });
-      }
-      throw error;
-    }
-
-    setupToken = null;
-    return res.json({ ok: true });
-  } catch (e) {
-    return res.status(500).json({ error: e.message });
-  }
-});
-
 app.post("/api/auth/login", async (req, res) => {
   const { user, password } = req.body;
   if (!user || !password) {
@@ -462,7 +381,6 @@ app.get("/api/hotspot/:id", async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
-app.listen(3000, async () => {
+app.listen(3000, () => {
   console.log("🚀 Papely rodando em http://localhost:3000");
-  await initSetup();
 });
