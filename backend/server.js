@@ -79,11 +79,16 @@ app.post("/api/auth/login", async (req, res) => {
   }
 
   try {
-    const { data } = await supabase
+    const { data, error: dbError } = await supabase
       .from("users")
       .select("password_hash")
       .eq("username", user)
       .maybeSingle();
+
+    if (dbError) {
+      console.error("❌ Erro ao buscar usuário no Supabase:", dbError);
+      return res.status(500).json({ error: "Erro interno ao autenticar" });
+    }
 
     // Resposta genérica para não vazar se o usuário existe ou não
     if (!data || !(await bcrypt.compare(password, data.password_hash))) {
