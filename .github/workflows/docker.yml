@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Deploy
 
 on:
   push:
@@ -19,15 +19,41 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build da imagem
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/papely-qrcode .
+      - name: Build e push frontend
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/papely-qrcode .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/papely-qrcode
 
-      - name: Push da imagem
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/papely-qrcode
+      - name: Build e push backend
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/papely-backend ./backend
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/papely-backend
 
-      # 🔥 BACKEND
-      - name: Build backend
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/papely-backend ./backend
+  deploy:
+    runs-on: self-hosted
+    needs: build
 
-      - name: Push backend
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/papely-backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+
+      - name: Add kubectl to PATH
+        run: echo "$PWD" >> $GITHUB_PATH
+
+      - name: Deploy
+        run: kubectl apply -k k8s/overlays/dev
+
+      - name: Restart deployments
+        run: |
+          kubectl rollout restart deployment papely -n papely-qrcode
+          kubectl rollout restart deployment papely-backend -n papely-qrcode
+
+      - name: Aguardar rollout
+        run: |
+          kubectl rollout status deployment/papely -n papely-qrcode --timeout=120s
+          kubectl rollout status deployment/papely-backend -n papely-qrcode --timeout=120s
