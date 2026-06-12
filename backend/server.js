@@ -198,9 +198,10 @@ async function readInvitation(id) {
 async function saveHotspot(id, doc) {
   const { error } = await supabase.from("hotspots").insert({
     id,
-    pdf_url:   doc.pdfUrl,
-    hotspots:  doc.hotspots,
-    criado_em: doc.criadoEm,
+    pdf_url:    doc.pdfUrl,
+    hotspots:   doc.hotspots,
+    criado_em:  doc.criadoEm,
+    expires_at: doc.expiresAt || null,
   });
   if (error) throw new Error(`Salvar hotspot: ${error.message}`);
 }
@@ -214,10 +215,11 @@ async function readHotspot(id) {
 
   if (error || !data) return null;
   return {
-    id:       data.id,
-    pdfUrl:   data.pdf_url,
-    hotspots: data.hotspots,
-    criadoEm: data.criado_em,
+    id:        data.id,
+    pdfUrl:    data.pdf_url,
+    hotspots:  data.hotspots,
+    criadoEm:  data.criado_em,
+    expiresAt: data.expires_at,
   };
 }
 
@@ -331,7 +333,7 @@ app.post("/api/convite", authMiddleware, async (req, res) => {
 });
 
 app.post("/api/hotspot", authMiddleware, async (req, res) => {
-  const { pdfUrl, hotspots } = req.body;
+  const { pdfUrl, hotspots, expiresAt } = req.body;
 
   if (!pdfUrl) return res.status(400).json({ error: "Campo obrigatório: pdfUrl" });
   if (!Array.isArray(hotspots) || hotspots.length === 0) {
@@ -342,6 +344,7 @@ app.post("/api/hotspot", authMiddleware, async (req, res) => {
     const id = randomUUID();
     await saveHotspot(id, {
       id, pdfUrl,
+      expiresAt: expiresAt || null,
       hotspots: hotspots.map(h => ({
         id:    h.id    || randomUUID(),
         type:  h.type  || "link",
@@ -384,6 +387,9 @@ app.get("/api/hotspot/:id", async (req, res) => {
   try {
     const doc = await readHotspot(req.params.id);
     if (!doc) return res.status(404).json({ error: "Documento não encontrado" });
+    if (doc.expiresAt && new Date() > new Date(doc.expiresAt)) {
+      return res.status(410).json({ error: "Este link expirou", expired: true });
+    }
     return res.json(doc);
   } catch (e) {
     return res.status(500).json({ error: e.message });

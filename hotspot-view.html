@@ -348,6 +348,10 @@ async function carregar() {
 
   try {
     const res = await fetch(`/api/hotspot/${id}`);
+    if (res.status === 410) {
+      showStatus('⏱','Link expirado','Este documento não está mais disponível.', true);
+      return;
+    }
     if (!res.ok) throw new Error();
     const doc = await res.json();
 
