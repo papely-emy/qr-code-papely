@@ -3,309 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Papely — Ferramentas Criativas</title>
+<title>Papely — Ferramentas</title>
+<link rel="stylesheet" href="/styles.css">
 <style>
-:root {
-  --pink: #d81b60;
-  --pink-dark: #880e4f;
-  --pink-light: #ec407a;
-  --pink-soft: #fce4ec;
-  --pink-mid: #f8bbd0;
-  --text: #1a0a14;
-  --text-muted: #9c4065;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background: #fff5f8;
-  min-height: 100vh;
-  color: var(--text);
-  overflow-x: hidden;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 70% 55% at 10% 15%, rgba(252,228,236,0.92) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 70% at 92% 82%, rgba(248,187,208,0.72) 0%, transparent 55%),
-    linear-gradient(180deg, #fff5f8 0%, #fef0f6 100%);
-  z-index: -1;
-  pointer-events: none;
-}
-
-/* ── NAV ── */
-nav {
-  padding: 16px 48px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  background: rgba(255,255,255,0.62);
-  border-bottom: 1px solid rgba(216,27,96,0.09);
-}
-
-@media (max-width: 640px) { nav { padding: 14px 20px; } }
-
-.nav-logo {
-  font-size: 20px;
-  font-weight: 900;
-  color: var(--pink);
-  letter-spacing: -0.4px;
-  text-decoration: none;
-}
-
-.nav-tagline {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--pink);
-  opacity: 0.45;
-  letter-spacing: 0.3px;
-}
-
-.btn-logout {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--pink);
-  background: none;
-  border: 1.5px solid rgba(216,27,96,0.25);
-  border-radius: 20px;
-  padding: 6px 16px;
-  cursor: pointer;
-  font-family: inherit;
-  opacity: 0.65;
-  transition: opacity 0.2s, border-color 0.2s;
-}
-.btn-logout:hover { opacity: 1; border-color: rgba(216,27,96,0.5); }
-
-/* ── HERO ── */
-.hero {
-  text-align: center;
-  padding: 100px 24px 72px;
-  max-width: 680px;
+.page {
+  max-width: 960px;
   margin: 0 auto;
+  padding: 48px 24px 80px;
 }
-
-.hero-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(216,27,96,0.07);
-  border: 1px solid rgba(216,27,96,0.15);
-  color: var(--pink);
-  font-size: 11px;
+.page-header { margin-bottom: 36px; }
+.page-header h1 {
+  font-size: 1.4rem;
   font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  padding: 7px 18px;
-  border-radius: 50px;
-  margin-bottom: 32px;
-}
-
-.hero-eyebrow-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--pink);
-  flex-shrink: 0;
-  animation: blink 1.8s ease-in-out infinite;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.25; }
-}
-
-.hero h1 {
-  font-size: clamp(2.5rem, 7vw, 4.1rem);
-  font-weight: 900;
   color: var(--text);
-  line-height: 1.07;
-  margin-bottom: 22px;
-  letter-spacing: -2.8px;
+  letter-spacing: -0.3px;
 }
-
-.hero h1 em {
-  font-style: normal;
-  background: linear-gradient(135deg, #f06292 15%, #c2185b 85%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.hero-sub {
-  font-size: 1.05rem;
-  color: var(--text-muted);
-  max-width: 420px;
-  margin: 0 auto 44px;
-  line-height: 1.78;
-  font-weight: 400;
-}
-
-.hero-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(135deg, #ec407a, #c2185b);
-  color: white;
-  padding: 15px 32px;
-  border-radius: 50px;
-  font-weight: 700;
-  font-size: 0.92rem;
-  text-decoration: none;
-  box-shadow: 0 8px 28px rgba(194,24,91,0.30);
-  transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s ease;
-}
-.hero-cta:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 14px 38px rgba(194,24,91,0.38);
-}
-.hero-cta:active { transform: scale(0.98); }
-
-/* ── TOOLS ── */
-.tools-section {
-  padding: 0 24px 100px;
-}
-
-.section-label {
-  text-align: center;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--pink);
-  opacity: 0.55;
-  margin-bottom: 36px;
+.page-header p {
+  font-size: 14px;
+  color: var(--text-sec);
+  margin-top: 4px;
 }
 
 .tools {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-  gap: 22px;
-  max-width: 1048px;
-  margin: 0 auto;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
 }
 
 .tool-card {
-  background: rgba(255,255,255,0.82);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.95);
-  border-radius: 28px;
-  padding: 40px 32px;
-  text-align: center;
-  box-shadow:
-    0 4px 24px rgba(216,27,96,0.07),
-    0 1px 4px rgba(0,0,0,0.04),
-    inset 0 1px 0 rgba(255,255,255,0.9);
-  transition:
-    transform 0.3s cubic-bezier(.34,1.56,.64,1),
-    box-shadow 0.3s ease;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 24px;
   text-decoration: none;
-  display: block;
-  position: relative;
-  overflow: hidden;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
 }
-
-.tool-card-bar {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--pink-light), var(--pink));
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.35s ease;
-  border-radius: 3px 3px 0 0;
-}
-
 .tool-card:hover {
-  transform: translateY(-10px);
-  box-shadow:
-    0 24px 64px rgba(216,27,96,0.15),
-    0 8px 24px rgba(0,0,0,0.07),
-    inset 0 1px 0 rgba(255,255,255,0.95);
+  border-color: var(--brand);
+  box-shadow: 0 4px 20px rgba(190,24,93,0.1);
+  transform: translateY(-2px);
 }
 
-.tool-card:hover .tool-card-bar { transform: scaleX(1); }
-
-.tool-new-badge {
-  position: absolute;
-  top: 18px; right: 18px;
-  background: linear-gradient(135deg, var(--pink-light), var(--pink));
-  color: white;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-  padding: 4px 11px;
-  border-radius: 50px;
-  text-transform: uppercase;
-  box-shadow: 0 2px 8px rgba(216,27,96,0.28);
-}
-
-.tool-icon-wrap {
-  width: 76px;
-  height: 76px;
-  margin: 0 auto 22px;
-  border-radius: 22px;
-  background: linear-gradient(140deg, var(--pink-soft), var(--pink-mid));
+.tool-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--brand-bg);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 38px;
-  box-shadow: 0 6px 20px rgba(216,27,96,0.14), inset 0 1px 0 rgba(255,255,255,0.6);
-  transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+  color: var(--brand);
+  flex-shrink: 0;
+}
+.tool-icon svg { width: 22px; height: 22px; }
+
+.tool-content { flex: 1; }
+.tool-content h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+  letter-spacing: -0.2px;
+}
+.tool-content p {
+  font-size: 13px;
+  color: var(--text-sec);
+  line-height: 1.6;
 }
 
-.tool-card:hover .tool-icon-wrap {
-  transform: scale(1.1) rotate(-4deg);
-}
-
-.tool-card h2 {
-  font-size: 1.18rem;
-  font-weight: 800;
-  color: var(--pink-dark);
-  margin-bottom: 10px;
-  letter-spacing: -0.3px;
-}
-
-.tool-card p {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  line-height: 1.74;
-  margin-bottom: 26px;
-}
-
-.tool-btn {
-  display: inline-flex;
+.tool-footer {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  background: linear-gradient(135deg, var(--pink-light), var(--pink));
-  color: white;
-  padding: 11px 24px;
-  border-radius: 50px;
-  font-weight: 700;
-  font-size: 0.855rem;
-  box-shadow: 0 4px 16px rgba(216,27,96,0.22);
-  transition: opacity 0.2s, transform 0.15s;
+  justify-content: space-between;
 }
-.tool-card:hover .tool-btn { opacity: 0.93; }
-.tool-btn:active { transform: scale(0.97); }
-
-/* ── FOOTER ── */
-footer {
-  text-align: center;
-  padding: 32px 24px;
-  color: var(--pink-dark);
-  font-size: 0.8rem;
-  opacity: 0.38;
-  border-top: 1px solid rgba(216,27,96,0.07);
+.tool-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--brand-bg);
+  color: var(--brand);
 }
 </style>
 </head>
@@ -316,69 +105,87 @@ footer {
 (async()=>{
   try{
     const r=await fetch('/api/auth/check');
-    if(!r.ok){window.location.replace('/login.html');return;}
+    if(!r.ok){window.location.replace('/login');return;}
     document.getElementById('auth-veil').remove();
-  }catch{window.location.replace('/login.html');}
+  }catch{window.location.replace('/login');}
 })();
 </script>
 
 <nav>
-  <span class="nav-logo">💗 Papely</span>
-  <span class="nav-tagline">Ferramentas criativas</span>
+  <a href="/" class="nav-logo">papely</a>
   <button class="btn-logout" onclick="sair()">Sair</button>
 </nav>
 
-<section class="hero">
-  <div class="hero-eyebrow">
-    <span class="hero-eyebrow-dot"></span>
-    Gratuito e sem cadastro
+<main class="page">
+  <div class="page-header">
+    <h1>Ferramentas</h1>
+    <p>Escolha uma ferramenta para começar</p>
   </div>
-  <h1>Crie. <em>Compartilhe.</em><br>Surpreenda.</h1>
-  <p class="hero-sub">Gerador de QR Code, convites digitais interativos e PDFs com botões clicáveis — tudo em segundos.</p>
-  <a href="#ferramentas" class="hero-cta">Ver ferramentas →</a>
-</section>
 
-<div class="tools-section" id="ferramentas">
-  <p class="section-label">Escolha uma ferramenta</p>
   <div class="tools">
 
-    <a href="/qrcode.html" class="tool-card">
-      <div class="tool-card-bar"></div>
-      <div class="tool-icon-wrap">🔲</div>
-      <h2>Gerador de QR Code</h2>
-      <p>Crie QR Codes coloridos para links e PDFs. Personalize e baixe em PNG com um clique.</p>
-      <span class="tool-btn">Criar QR Code →</span>
+    <a href="/qrcode" class="tool-card">
+      <div class="tool-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="3" height="3" rx="0.5"/>
+          <path d="M17 17h3v3h-3z M20 14v3 M14 20h3"/>
+        </svg>
+      </div>
+      <div class="tool-content">
+        <h2>Gerador de QR Code</h2>
+        <p>Crie QR Codes coloridos para links e PDFs. Personalize a cor e baixe em PNG.</p>
+      </div>
+      <div class="tool-footer">
+        <span class="tool-link">Acessar →</span>
+      </div>
     </a>
 
-    <a href="/convites.html" class="tool-card">
-      <div class="tool-card-bar"></div>
-      <span class="tool-new-badge">Novo</span>
-      <div class="tool-icon-wrap">🎉</div>
-      <h2>Convites Interativos</h2>
-      <p>Monte convites digitais elegantes para festas, casamentos, aniversários e eventos corporativos.</p>
-      <span class="tool-btn">Criar Convite →</span>
+    <a href="/convites" class="tool-card">
+      <div class="tool-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+        </svg>
+      </div>
+      <div class="tool-content">
+        <h2>Convites Interativos</h2>
+        <p>Monte convites digitais para festas, casamentos, aniversários e eventos corporativos.</p>
+      </div>
+      <div class="tool-footer">
+        <span class="tool-link">Acessar →</span>
+        <span class="badge">Novo</span>
+      </div>
     </a>
 
-    <a href="/hotspot.html" class="tool-card">
-      <div class="tool-card-bar"></div>
-      <span class="tool-new-badge">Novo</span>
-      <div class="tool-icon-wrap">📌</div>
-      <h2>PDF com Hotspots</h2>
-      <p>Suba qualquer PDF e posicione botões clicáveis sobre ele — WhatsApp, Maps, links e mais.</p>
-      <span class="tool-btn">Criar PDF Interativo →</span>
+    <a href="/hotspot" class="tool-card">
+      <div class="tool-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <circle cx="12" cy="14" r="2"/>
+          <path d="M12 16c-2 0-4 1-4 2v1h8v-1c0-1-2-2-4-2z"/>
+        </svg>
+      </div>
+      <div class="tool-content">
+        <h2>PDF com Hotspots</h2>
+        <p>Suba qualquer PDF e adicione botões clicáveis — WhatsApp, Maps, links e mais.</p>
+      </div>
+      <div class="tool-footer">
+        <span class="tool-link">Acessar →</span>
+        <span class="badge">Novo</span>
+      </div>
     </a>
 
   </div>
-</div>
-
-<footer>Feito com amor 💖 Papely</footer>
+</main>
 
 <script>
 async function sair() {
   await fetch('/api/auth/logout', { method: 'POST' }).catch(()=>{});
-  window.location.replace('/login.html');
+  window.location.replace('/login');
 }
 </script>
-
 </body>
 </html>

@@ -603,14 +603,18 @@ function renderErro(titulo, msg) {
 
 async function carregar() {
   const id = new URLSearchParams(window.location.search).get('id');
-  if (!id) { renderErro('Convite não encontrado', 'O link está incorreto ou expirado.'); return; }
+  if (!id) { renderErro('Convite não encontrado', 'O link está incorreto.'); return; }
 
   try {
     const res = await fetch(`/api/convite/${id}`);
+    if (res.status === 410) {
+      renderErro('Convite expirado', 'Este convite não está mais disponível.');
+      return;
+    }
     if (!res.ok) throw new Error();
     renderConvite(await res.json());
   } catch {
-    renderErro('Convite não encontrado', 'Este convite pode ter expirado ou o link está incorreto.');
+    renderErro('Convite não encontrado', 'O link pode estar incorreto.');
   }
 }
 

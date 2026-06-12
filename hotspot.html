@@ -6,41 +6,20 @@
 <title>Papely — Editor de Hotspots</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<link rel="stylesheet" href="/styles.css">
 <style>
 :root {
-  --pink: #d81b60;
-  --pink-dark: #880e4f;
+  --pink: #be185d;
+  --pink-dark: #9d174d;
   --pink-light: #ec407a;
   --radius: 14px;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  background: radial-gradient(ellipse at 20% 20%, #fce4ec 0%, #f8bbd0 40%, #fce4ec 70%, #fff0f5 100%);
-  min-height: 100vh;
-  padding: 20px;
+  padding: 24px 20px 48px;
 }
 
-/* ── NAV ── */
-nav {
-  display: flex; align-items: center; gap: 14px;
-  max-width: 1300px; margin: 0 auto 20px;
-}
-.back  { color: var(--pink); text-decoration: none; font-size: 13px; font-weight: 600; opacity: .8; }
-.back:hover { opacity: 1; }
-.nav-logo { font-size: 17px; font-weight: 800; color: var(--pink); }
-
-.btn-logout {
-  font-size: 12px; font-weight: 600; color: var(--pink);
-  background: none; border: 1.5px solid rgba(216,27,96,0.25);
-  border-radius: 20px; padding: 6px 16px; cursor: pointer;
-  font-family: inherit; opacity: 0.65; transition: opacity 0.2s; margin-left: auto;
-}
-.btn-logout:hover { opacity: 1; }
-
-/* ── LAYOUT ── */
-.page-wrap { max-width: 1300px; margin: 0 auto; }
+.page-wrap { max-width: 1300px; margin: 24px auto 0; }
 
 /* ── STEPS ── */
 .step { display: none; }
@@ -302,15 +281,16 @@ textarea.cf-input { resize: vertical; min-height: 72px; line-height: 1.5; }
 (async()=>{
   try{
     const r=await fetch('/api/auth/check');
-    if(!r.ok){window.location.replace('/login.html');return;}
+    if(!r.ok){window.location.replace('/login');return;}
     document.getElementById('auth-veil').remove();
-  }catch{window.location.replace('/login.html');}
+  }catch{window.location.replace('/login');}
 })();
 </script>
 
 <nav>
-  <a href="/" class="back">← Início</a>
-  <span class="nav-logo">💗 Papely</span>
+  <a href="/" class="nav-logo">papely</a>
+  <span class="nav-sep">/</span>
+  <span class="nav-page">PDF com Hotspots</span>
   <button class="btn-logout" onclick="sair()">Sair</button>
 </nav>
 
@@ -319,7 +299,7 @@ textarea.cf-input { resize: vertical; min-height: 72px; line-height: 1.5; }
   <!-- ══ STEP 1: Upload ══ -->
   <div class="step active" id="step1">
     <div class="upload-card">
-      <h1>📌 Editor de Hotspots</h1>
+      <h1>Editor de Hotspots</h1>
       <p>Suba um PDF e posicione áreas clicáveis invisíveis sobre os ícones do documento</p>
 
       <div class="upload-zone" id="uploadZone">
@@ -839,7 +819,7 @@ window.addEventListener('resize', () => {
 
 async function sair() {
   await fetch('/api/auth/logout', { method: 'POST' }).catch(()=>{});
-  window.location.replace('/login.html');
+  window.location.replace('/login');
 }
 </script>
 </body>

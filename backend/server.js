@@ -152,18 +152,19 @@ async function saveFile(originalName, buffer, mimetype) {
 async function saveInvitation(id, inv) {
   const { error } = await supabase.from("invitations").insert({
     id,
-    tipo:      inv.tipo,
-    tema:      inv.tema,
-    nome:      inv.nome,
-    subtitulo: inv.subtitulo,
-    mensagem:  inv.mensagem,
-    data:      inv.data,
-    hora:      inv.hora,
-    local:     inv.local,
-    whatsapp:  inv.whatsapp,
-    maps:      inv.maps,
-    presentes: inv.presentes,
-    criado_em: inv.criadoEm,
+    tipo:       inv.tipo,
+    tema:       inv.tema,
+    nome:       inv.nome,
+    subtitulo:  inv.subtitulo,
+    mensagem:   inv.mensagem,
+    data:       inv.data,
+    hora:       inv.hora,
+    local:      inv.local,
+    whatsapp:   inv.whatsapp,
+    maps:       inv.maps,
+    presentes:  inv.presentes,
+    criado_em:  inv.criadoEm,
+    expires_at: inv.expiresAt || null,
   });
   if (error) throw new Error(`Salvar convite: ${error.message}`);
 }
@@ -190,6 +191,7 @@ async function readInvitation(id) {
     maps:      data.maps,
     presentes: data.presentes,
     criadoEm:  data.criado_em,
+    expiresAt: data.expires_at,
   };
 }
 
@@ -369,6 +371,9 @@ app.get("/api/convite/:id", async (req, res) => {
   try {
     const invitation = await readInvitation(req.params.id);
     if (!invitation) return res.status(404).json({ error: "Convite não encontrado" });
+    if (invitation.expiresAt && new Date() > new Date(invitation.expiresAt)) {
+      return res.status(410).json({ error: "Este convite expirou", expired: true });
+    }
     return res.json(invitation);
   } catch (e) {
     return res.status(500).json({ error: e.message });

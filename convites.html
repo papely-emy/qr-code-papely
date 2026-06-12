@@ -8,47 +8,22 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<link rel="stylesheet" href="/styles.css">
 <style>
 :root {
-  --pink: #d81b60;
-  --pink-dark: #880e4f;
+  --pink: #be185d;
+  --pink-dark: #9d174d;
   --pink-light: #ec407a;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
 body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  min-height: 100vh;
-  background: radial-gradient(ellipse at 20% 20%, #fce4ec 0%, #f8bbd0 40%, #fce4ec 70%, #fff0f5 100%);
   padding: 24px 20px 48px;
 }
-
-/* ── NAV ─────────────────────────────────────────── */
-nav {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  max-width: 1140px;
-  margin: 0 auto 28px;
-}
-
-.back { color: var(--pink); text-decoration: none; font-size: 13px; font-weight: 600; opacity: 0.8; }
-.back:hover { opacity: 1; }
-.nav-logo { font-size: 17px; font-weight: 800; color: var(--pink); }
-
-.btn-logout {
-  font-size: 12px; font-weight: 600; color: var(--pink);
-  background: none; border: 1.5px solid rgba(216,27,96,0.25);
-  border-radius: 20px; padding: 6px 16px; cursor: pointer;
-  font-family: inherit; opacity: 0.65; transition: opacity 0.2s; margin-left: auto;
-}
-.btn-logout:hover { opacity: 1; }
 
 /* ── LAYOUT ─────────────────────────────────────────── */
 .main {
   max-width: 1140px;
-  margin: 0 auto;
+  margin: 28px auto 0;
   display: grid;
   grid-template-columns: 1fr 400px;
   gap: 24px;
@@ -401,15 +376,16 @@ textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
 (async()=>{
   try{
     const r=await fetch('/api/auth/check');
-    if(!r.ok){window.location.replace('/login.html');return;}
+    if(!r.ok){window.location.replace('/login');return;}
     document.getElementById('auth-veil').remove();
-  }catch{window.location.replace('/login.html');}
+  }catch{window.location.replace('/login');}
 })();
 </script>
 
 <nav>
-  <a href="/" class="back">← Início</a>
-  <span class="nav-logo">💗 Papely</span>
+  <a href="/" class="nav-logo">papely</a>
+  <span class="nav-sep">/</span>
+  <span class="nav-page">Convites</span>
   <button class="btn-logout" onclick="sair()">Sair</button>
 </nav>
 
@@ -509,6 +485,14 @@ textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
     <div class="field">
       <label>Google Maps — link ou endereço completo</label>
       <input type="text" id="maps" placeholder="Cole o link do Google Maps ou o endereço completo" oninput="atualizar()">
+    </div>
+
+    <!-- Expiração -->
+    <div class="section-title">⏱ Expiração do link (opcional)</div>
+    <div class="field">
+      <label>O convite expira em</label>
+      <input type="date" id="expira">
+      <small style="font-size:12px;color:#aaa;">Deixe em branco para não expirar. O link fica indisponível após a meia-noite da data escolhida.</small>
     </div>
 
     <!-- Lista de presentes -->
@@ -728,6 +712,7 @@ async function criarConvite() {
   if (!nome) { alert('Preencha o nome / título principal 😊'); return; }
   if (!data) { alert('Preencha a data do evento 😊'); return; }
 
+  const expira = document.getElementById('expira').value;
   const payload = {
     tipo:      tipoAtual,
     tema:      temaAtual,
@@ -740,6 +725,7 @@ async function criarConvite() {
     whatsapp:  whatsapp.replace(/\D/g, ''),
     maps:      document.getElementById('maps').value.trim(),
     presentes: [...presentes],
+    expiresAt: expira ? new Date(expira + 'T23:59:59').toISOString() : null,
   };
 
   try {
@@ -782,7 +768,7 @@ function copiarLink() {
 
 async function sair() {
   await fetch('/api/auth/logout', { method: 'POST' }).catch(()=>{});
-  window.location.replace('/login.html');
+  window.location.replace('/login');
 }
 
 // Init
