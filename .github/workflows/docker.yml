@@ -50,10 +50,10 @@ jobs:
 
       - name: Restart deployments
         run: |
-          kubectl rollout restart deployment papely -n papely-qrcode
-          kubectl rollout restart deployment papely-backend -n papely-qrcode
+          kubectl rollout restart deployment dev-papely -n papely-qrcode
+          kubectl rollout restart deployment dev-papely-backend -n papely-qrcode
 
       - name: Aguardar rollout
         run: |
-          kubectl rollout status deployment/papely -n papely-qrcode --timeout=120s
-          kubectl rollout status deployment/papely-backend -n papely-qrcode --timeout=120s
+          kubectl rollout status deployment/dev-papely -n papely-qrcode --timeout=120s
+          kubectl rollout status deployment/dev-papely-backend -n papely-qrcode --timeout=120s

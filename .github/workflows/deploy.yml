@@ -1,2 +1,0 @@
-# Deploy movido para docker.yml — este arquivo não é mais usado.
-# O job deploy agora roda após o build com needs: build.
