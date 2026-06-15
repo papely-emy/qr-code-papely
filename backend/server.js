@@ -332,6 +332,58 @@ app.post("/api/convite", authMiddleware, async (req, res) => {
   }
 });
 
+app.get("/api/convites", authMiddleware, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("invitations")
+      .select("id, tipo, tema, nome, data, criado_em, expires_at")
+      .order("criado_em", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return res.json(data || []);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+app.put("/api/convite/:id", authMiddleware, async (req, res) => {
+  const { nome, tipo, tema, subtitulo, mensagem, data, hora, local, whatsapp, maps, presentes, expiresAt } = req.body;
+  if (!nome || !data) {
+    return res.status(400).json({ error: "Campos obrigatórios: nome, data" });
+  }
+  try {
+    const { error } = await supabase.from("invitations").update({
+      tipo:       tipo       || "festa",
+      tema:       tema       || "rosa",
+      nome,
+      subtitulo:  subtitulo  || "",
+      mensagem:   mensagem   || "",
+      data,
+      hora:       hora       || "",
+      local:      local      || "",
+      whatsapp:   whatsapp   || "",
+      maps:       maps       || "",
+      presentes:  Array.isArray(presentes) ? presentes : [],
+      expires_at: expiresAt  || null,
+    }).eq("id", req.params.id);
+    if (error) throw new Error(error.message);
+    return res.json({ ok: true });
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+// Load invite for editing — auth required, ignores expiration
+app.get("/api/admin/convite/:id", authMiddleware, async (req, res) => {
+  try {
+    const inv = await readInvitation(req.params.id);
+    if (!inv) return res.status(404).json({ error: "Convite não encontrado" });
+    return res.json(inv);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
 app.post("/api/hotspot", authMiddleware, async (req, res) => {
   const { pdfUrl, hotspots, expiresAt } = req.body;
 

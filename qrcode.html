@@ -363,15 +363,54 @@ function renderQR(url, color, tipo = "link") {
 
   qrResult.classList.add("visible");
   qrUrlPreview.textContent = url;
-  document.getElementById("saveStatus").textContent = "";
+
+  const saveStatus = document.getElementById("saveStatus");
+  const saveBtn    = document.getElementById("saveBtn");
+  saveStatus.textContent = "Salvando ☁️...";
+  saveStatus.style.color = "";
+  saveBtn.style.display  = "none";
 
   setTimeout(() => {
     QRCode.toCanvas(canvas, url, {
       width: 260,
       margin: 2,
       color: { dark: color, light: "#ffffff" }
-    });
+    }, () => salvarQRAuto());
   }, 0);
+}
+
+async function salvarQRAuto() {
+  const saveStatus = document.getElementById("saveStatus");
+  const saveBtn    = document.getElementById("saveBtn");
+  const nome       = document.getElementById("filename").value.trim() || "qrcode";
+
+  try {
+    const res = await fetch("/api/qrcode", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tipo:         qrTipo,
+        urlDestino:   qrUrl,
+        nome,
+        cor:          qrCor,
+        imagemBase64: canvas.toDataURL("image/png"),
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "Erro ao salvar");
+    }
+
+    saveStatus.textContent = "✅ Salvo no Supabase";
+    saveStatus.style.color = "#4caf50";
+    saveBtn.style.display  = "none";
+  } catch (err) {
+    saveStatus.textContent = "Não foi possível salvar — ";
+    saveStatus.style.color = "#e53935";
+    saveBtn.style.display  = "";
+    saveBtn.textContent    = "Tentar novamente ☁️";
+  }
 }
 
 function gerarQR() {
@@ -422,43 +461,10 @@ function baixar() {
 
 async function salvarQR() {
   if (!canvas.width) { alert("Gera um QR primeiro 😊"); return; }
-
-  const saveBtn    = document.getElementById("saveBtn");
-  const saveStatus = document.getElementById("saveStatus");
-  const nome       = document.getElementById("filename").value.trim() || "qrcode";
-
-  saveBtn.disabled    = true;
-  saveBtn.textContent = "Salvando... ⏳";
-  saveStatus.textContent = "";
-  saveStatus.className = "";
-
-  try {
-    const res = await fetch("/api/qrcode", {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tipo:        qrTipo,
-        urlDestino:  qrUrl,
-        nome,
-        cor:         qrCor,
-        imagemBase64: canvas.toDataURL("image/png"),
-      }),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || "Erro ao salvar");
-    }
-
-    saveStatus.textContent = "✅ Salvo no Supabase!";
-    saveStatus.style.color = "#4caf50";
-  } catch (err) {
-    saveStatus.textContent = "❌ " + err.message;
-    saveStatus.style.color = "#e53935";
-  } finally {
-    saveBtn.disabled    = false;
-    saveBtn.textContent = "Salvar no Supabase ☁️";
-  }
+  const saveBtn = document.getElementById("saveBtn");
+  saveBtn.disabled = true;
+  await salvarQRAuto();
+  saveBtn.disabled = false;
 }
 
 async function sair() {

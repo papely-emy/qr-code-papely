@@ -525,11 +525,11 @@ textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
       <button class="btn-add" onclick="adicionarPresente()" title="Adicionar">+</button>
     </div>
 
-    <button class="btn-create" onclick="criarConvite()">Criar Convite ✨</button>
+    <button class="btn-create" id="criarBtn" onclick="criarConvite()">Criar Convite ✨</button>
 
     <!-- Resultado -->
     <div class="success-box" id="successBox">
-      <h3>🎉 Convite criado! Compartilhe:</h3>
+      <h3 id="successTitle">🎉 Convite criado! Compartilhe:</h3>
       <div class="share-link" id="shareLink"></div>
       <button class="btn-copy" onclick="copiarLink()">Copiar link 📋</button>
       <div class="qr-center">
@@ -555,6 +555,7 @@ let tipoAtual  = 'aniversario15';
 let temaAtual  = 'rosa';
 let presentes  = [];
 let linkGerado = '';
+let editingId  = null;
 
 // ── Theme colors map (mirrors convite.html CSS vars) ──────
 const TEMAS = {
@@ -749,19 +750,28 @@ async function criarConvite() {
   };
 
   try {
-    const res = await fetch('/api/convite', {
-      method:  'POST',
+    const endpoint = editingId ? `/api/convite/${editingId}` : '/api/convite';
+    const method   = editingId ? 'PUT' : 'POST';
+
+    const res = await fetch(endpoint, {
+      method,
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(payload),
     });
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Erro ao criar convite');
+      throw new Error(err.error || (editingId ? 'Erro ao salvar alterações' : 'Erro ao criar convite'));
     }
 
-    const result = await res.json();
-    linkGerado = window.location.origin + result.url;
+    if (editingId) {
+      linkGerado = `${window.location.origin}/convite.html?id=${editingId}`;
+      document.getElementById('successTitle').textContent = '✅ Alterações salvas! Compartilhe:';
+    } else {
+      const result = await res.json();
+      linkGerado = window.location.origin + result.url;
+      document.getElementById('successTitle').textContent = '🎉 Convite criado! Compartilhe:';
+    }
 
     document.getElementById('shareLink').textContent = linkGerado;
     document.getElementById('successBox').classList.add('visible');
@@ -791,8 +801,58 @@ async function sair() {
   window.location.replace('/login');
 }
 
+async function carregarParaEditar(id) {
+  try {
+    const res = await fetch(`/api/admin/convite/${id}`);
+    if (!res.ok) throw new Error('Convite não encontrado');
+    const inv = await res.json();
+
+    editingId = id;
+
+    tipoAtual = inv.tipo || 'festa';
+    document.querySelectorAll('.tipo-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.tipo === tipoAtual);
+    });
+
+    temaAtual = inv.tema || 'rosa';
+    document.querySelectorAll('.tema-swatch').forEach(s => {
+      s.classList.toggle('active', s.dataset.tema === temaAtual);
+    });
+
+    document.getElementById('nome').value      = inv.nome      || '';
+    document.getElementById('subtitulo').value = inv.subtitulo || '';
+    document.getElementById('mensagem').value  = inv.mensagem  || '';
+    document.getElementById('data').value      = inv.data      || '';
+    document.getElementById('hora').value      = inv.hora      || '';
+    document.getElementById('local').value     = inv.local     || '';
+    document.getElementById('whatsapp').value  = inv.whatsapp  || '';
+    document.getElementById('maps').value      = inv.maps      || '';
+
+    if (inv.expiresAt) {
+      const d = new Date(inv.expiresAt);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      document.getElementById('expira').value = `${y}-${m}-${day}`;
+    }
+
+    presentes = Array.isArray(inv.presentes) ? inv.presentes : [];
+    renderPresentList();
+
+    document.getElementById('criarBtn').textContent = 'Salvar Alterações ✨';
+
+    atualizar();
+
+    document.querySelector('.main').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    alert('Erro ao carregar convite: ' + e.message);
+  }
+}
+
 // Init
 atualizar();
+const _editId = new URLSearchParams(window.location.search).get('id');
+if (_editId) carregarParaEditar(_editId);
 </script>
 
 </body>
