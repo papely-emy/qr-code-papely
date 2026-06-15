@@ -406,7 +406,10 @@ textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
   <a href="/" class="nav-logo">papely</a>
   <span class="nav-sep">/</span>
   <span class="nav-page">Convites</span>
-  <button class="btn-logout" onclick="sair()">Sair</button>
+  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+    <a href="/meus-convites" class="btn-logout" style="text-decoration:none">Ver criados</a>
+    <button class="btn-logout" onclick="sair()">Sair</button>
+  </div>
 </nav>
 
 <div class="main">
