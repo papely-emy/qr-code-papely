@@ -419,6 +419,20 @@ app.post("/api/hotspot", authMiddleware, async (req, res) => {
   }
 });
 
+app.get("/api/hotspots", authMiddleware, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("hotspots")
+      .select("id, pdf_url, hotspots, criado_em, expires_at")
+      .order("criado_em", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return res.json(data || []);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
 // ---------------------------------------------------------------------------
 // API routes — públicas (visitantes)
 // ---------------------------------------------------------------------------

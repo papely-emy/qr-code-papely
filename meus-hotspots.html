@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Papely — Meus Hotspots</title>
+<style>
+:root {
+  --pink:       #d81b60;
+  --pink-dark:  #880e4f;
+  --pink-light: #ec407a;
+  --pink-pale:  #fce4ec;
+  --pink-mid:   #f8bbd0;
+  --bg:         #fff5f8;
+  --white:      #ffffff;
+  --text:       #1a0a14;
+  --text-sec:   #6d3358;
+  --text-ter:   #c08ea0;
+  --border:     rgba(216,27,96,0.14);
+  --r:          12px;
+  --r-lg:       18px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* ── Nav ── */
+nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  height: 58px;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 12px;
+}
+@media (max-width: 640px) { nav { padding: 0 20px; } }
+
+.nav-logo  { font-size: 18px; font-weight: 800; color: var(--pink); text-decoration: none; letter-spacing: -0.5px; flex-shrink: 0; }
+.nav-sep   { color: var(--text-ter); font-size: 14px; flex-shrink: 0; }
+.nav-page  { font-size: 14px; color: var(--text-sec); font-weight: 500; flex: 1; }
+.btn-logout {
+  font-size: 13px; font-weight: 600; color: var(--text-sec);
+  background: none; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 6px 16px; cursor: pointer; font-family: inherit;
+  transition: background .15s, color .15s, border-color .15s; flex-shrink: 0;
+  text-decoration: none; display: inline-flex; align-items: center;
+}
+.btn-logout:hover { background: var(--pink-pale); color: var(--pink); border-color: rgba(216,27,96,0.3); }
+
+/* ── Page ── */
+.page { max-width: 980px; margin: 0 auto; padding: 44px 24px 80px; }
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.page-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.4px; }
+.page-header p  { font-size: 14px; color: var(--text-sec); margin-top: 4px; }
+
+.btn-new {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 22px; border-radius: var(--r); font-size: 14px; font-weight: 700;
+  font-family: inherit; cursor: pointer; text-decoration: none; border: none;
+  background: var(--pink); color: white;
+  box-shadow: 0 4px 14px rgba(216,27,96,0.28);
+  transition: background .15s, box-shadow .15s, transform .1s;
+}
+.btn-new:hover  { background: var(--pink-dark); box-shadow: 0 6px 18px rgba(216,27,96,0.34); }
+.btn-new:active { transform: scale(.98); }
+
+/* ── Grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+/* ── Card ── */
+.hs-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow .2s, transform .2s, border-color .2s;
+}
+.hs-card:hover {
+  box-shadow: 0 6px 24px rgba(216,27,96,0.11);
+  transform: translateY(-3px);
+  border-color: rgba(216,27,96,0.28);
+}
+
+.card-stripe { height: 4px; background: linear-gradient(90deg, var(--pink-light), var(--pink)); width: 100%; }
+
+.card-body { padding: 18px 18px 14px; flex: 1; }
+
+.card-icon-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.card-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--pink-pale); display: flex; align-items: center;
+  justify-content: center; font-size: 20px; flex-shrink: 0;
+}
+.card-hs-count {
+  font-size: 11px; font-weight: 700; color: var(--text-ter);
+  text-transform: uppercase; letter-spacing: 0.4px;
+}
+
+.card-nome {
+  font-size: 15px; font-weight: 800; color: var(--text);
+  letter-spacing: -0.2px; margin-bottom: 8px; line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.card-meta {
+  display: flex; flex-direction: column; gap: 3px;
+  font-size: 12px; color: var(--text-ter); margin-bottom: 10px;
+}
+.card-meta span { display: flex; align-items: center; gap: 4px; }
+
+.expiry-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 700; padding: 3px 10px;
+  border-radius: 20px; margin-bottom: 2px;
+}
+.expiry-active  { background: #e8f5e9; color: #2e7d32; }
+.expiry-expired { background: #fce4ec; color: #c62828; }
+
+/* ── Actions ── */
+.card-actions { display: flex; border-top: 1px solid var(--border); }
+.card-actions a,
+.card-actions button {
+  flex: 1; padding: 11px 6px; font-size: 12px; font-weight: 700;
+  text-align: center; text-decoration: none; border: none;
+  background: none; cursor: pointer; font-family: inherit;
+  color: var(--text-sec); transition: background .15s, color .15s; line-height: 1;
+}
+.card-actions a:not(:last-child),
+.card-actions button:not(:last-child) { border-right: 1px solid var(--border); }
+.card-actions a:hover,
+.card-actions button:hover { background: var(--pink-pale); color: var(--pink); }
+.card-actions a:first-child  { border-radius: 0 0 0 var(--r-lg); }
+.card-actions button:last-child { border-radius: 0 0 var(--r-lg) 0; }
+
+/* ── Empty ── */
+.empty {
+  grid-column: 1 / -1; text-align: center; padding: 64px 24px; color: var(--text-ter);
+}
+.empty-icon { font-size: 48px; display: block; margin-bottom: 16px; }
+.empty h2   { font-size: 1.1rem; font-weight: 700; color: var(--text-sec); margin-bottom: 8px; }
+.empty p    { font-size: 14px; margin-bottom: 20px; }
+
+/* ── Loading / Error ── */
+.loading { grid-column: 1/-1; text-align: center; padding: 64px 24px; color: var(--text-ter); font-size: 14px; }
+.error-msg {
+  background: #fff0f4; border: 1px solid rgba(216,27,96,0.2);
+  border-radius: 10px; padding: 14px 18px; font-size: 13px;
+  color: var(--pink-dark); margin-bottom: 20px; display: none;
+}
+.error-msg.visible { display: block; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #1a0a14; color: white; padding: 10px 22px;
+  border-radius: 50px; font-size: 13px; font-weight: 600;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s;
+  opacity: 0; pointer-events: none; z-index: 9999;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<style id="auth-veil">body{visibility:hidden}</style>
+<script>
+(async()=>{
+  try{
+    const r=await fetch('/api/auth/check');
+    if(!r.ok){window.location.replace('/login');return;}
+    document.getElementById('auth-veil').remove();
+  }catch{window.location.replace('/login');}
+})();
+</script>
+
+<nav>
+  <a href="/" class="nav-logo">papely</a>
+  <span class="nav-sep">/</span>
+  <span class="nav-page">Meus Hotspots</span>
+  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+    <a href="/hotspot" class="btn-logout">+ Novo</a>
+    <button class="btn-logout" onclick="sair()">Sair</button>
+  </div>
+</nav>
+
+<main class="page">
+  <div class="page-header">
+    <div>
+      <h1>Meus Hotspots</h1>
+      <p>PDFs interativos criados — veja, acesse e copie o link.</p>
+    </div>
+    <a href="/hotspot" class="btn-new">+ Novo Hotspot</a>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="grid" id="grid">
+    <div class="loading">Carregando documentos...</div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function extractPdfName(url) {
+  if (!url) return 'Documento';
+  const file = decodeURIComponent(url.split('/').pop() || '');
+  // Format from server: timestamp-uuid8-slugified_name.pdf
+  const clean = file.replace(/^\d+-[a-f0-9]+-/, '').replace(/\.pdf$/i, '');
+  return clean.replace(/_/g, ' ') || 'Documento';
+}
+
+function fmtDateTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+function expiryHtml(expires_at) {
+  if (!expires_at) return '';
+  const exp = new Date(expires_at);
+  const now = new Date();
+  if (exp < now) return `<span class="expiry-badge expiry-expired">⏱ Expirado</span>`;
+  const days = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
+  return `<span class="expiry-badge expiry-active">⏱ Expira em ${days}d</span>`;
+}
+
+function escAttr(s) {
+  return String(s || '').replace(/'/g, '&#39;');
+}
+
+function renderCard(doc) {
+  const nome    = extractPdfName(doc.pdf_url);
+  const count   = Array.isArray(doc.hotspots) ? doc.hotspots.length : 0;
+  const link    = `${window.location.origin}/hotspot-view?id=${doc.id}`;
+
+  return `
+    <div class="hs-card">
+      <div class="card-stripe"></div>
+      <div class="card-body">
+        <div class="card-icon-row">
+          <div class="card-icon">📄</div>
+          <span class="card-hs-count">${count} botão${count !== 1 ? 'ões' : ''}</span>
+        </div>
+        <div class="card-nome" title="${escAttr(nome)}">${escHtml(nome)}</div>
+        <div class="card-meta">
+          <span>📅 Criado em ${fmtDateTime(doc.criado_em)}</span>
+        </div>
+        ${expiryHtml(doc.expires_at)}
+      </div>
+      <div class="card-actions">
+        <a href="/hotspot-view?id=${doc.id}" target="_blank" rel="noopener">Abrir</a>
+        <button onclick="copiar('${escAttr(link)}')">Copiar link</button>
+      </div>
+    </div>
+  `;
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+function copiar(url) {
+  navigator.clipboard.writeText(url)
+    .then(() => toast('Link copiado! 📋'))
+    .catch(() => toast('Copie: ' + url));
+}
+
+async function sair() {
+  await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+  window.location.replace('/login');
+}
+
+async function carregar() {
+  const grid  = document.getElementById('grid');
+  const errEl = document.getElementById('errorMsg');
+
+  try {
+    const res = await fetch('/api/hotspots');
+    if (!res.ok) throw new Error('Erro ao carregar');
+    const data = await res.json();
+
+    if (!data.length) {
+      grid.innerHTML = `
+        <div class="empty">
+          <span class="empty-icon">📄</span>
+          <h2>Nenhum hotspot ainda</h2>
+          <p>Suba um PDF e adicione botões clicáveis.</p>
+          <a href="/hotspot" class="btn-new">+ Criar Hotspot</a>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = data.map(renderCard).join('');
+  } catch (e) {
+    errEl.textContent = 'Não foi possível carregar os documentos. Tente novamente.';
+    errEl.classList.add('visible');
+    grid.innerHTML = '';
+  }
+}
+
+carregar();
+</script>
+</body>
+</html>
